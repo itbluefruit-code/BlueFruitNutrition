@@ -5,7 +5,7 @@ const AuthContext = createContext();
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuthContext debe ser usado dentro de AuthProvider');
+    throw new Error('useAuthContext debe usarse dentro de AuthProvider');
   }
   return context;
 };
@@ -15,31 +15,27 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // ✅ URL base de la API
+  // URL base del backend en Render
   const API_URL = "https://bluefruitnutrition1.onrender.com/api";
 
   // Verificar sesión al cargar la app
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch(`${API_URL}/session/auth/session`, {
+        const res = await fetch(`${API_URL}/session/auth/session`, {
           method: 'GET',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.user || data); // Maneja ambos formatos
-          setIsAuthenticated(true);
-          console.log('✅ Sesión verificada con backend:', data);
-        } else {
-          setUser(null);
-          setIsAuthenticated(false);
-          console.log('❌ No hay sesión activa');
-        }
+        if (!res.ok) throw new Error("No autenticado");
+
+        const data = await res.json();
+        setUser(data.user || data);
+        setIsAuthenticated(true);
+        console.log("✅ Sesión verificada:", data);
       } catch (error) {
-        console.error('Error verificando sesión:', error);
+        console.log("❌ No hay sesión activa");
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -51,26 +47,19 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkSession = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await fetch(`${API_URL}/session/auth/session`, {
+      const res = await fetch(`${API_URL}/session/auth/session`, {
         method: 'GET',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
       });
+      if (!res.ok) throw new Error("No autenticado");
 
-      if (response.ok) {
-        const data = await response.json();
-        setUser(data.user || data);
-        setIsAuthenticated(true);
-        console.log('🔍 Sesión confirmada:', data);
-      } else {
-        setUser(null);
-        setIsAuthenticated(false);
-        console.log('❌ No hay sesión activa');
-      }
+      const data = await res.json();
+      setUser(data.user || data);
+      setIsAuthenticated(true);
     } catch (error) {
-      console.error('Error en checkSession:', error);
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -80,29 +69,24 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const res = await fetch(`${API_URL}/login`, {
         method: 'POST',
-        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include',
       });
 
-      const data = await response.json();
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Error en login");
 
-      if (response.ok) {
-        if (data.user && data.user.id) {
-          setUser(data.user);
-          setIsAuthenticated(true);
-          console.log('✅ Login exitoso:', data.user);
-          return { success: true, data };
-        } else {
-          throw new Error('Datos de usuario incompletos');
-        }
-      } else {
-        throw new Error(data.message || 'Error al iniciar sesión');
-      }
+      if (!data.user || !data.user.id) throw new Error("Datos de usuario incompletos");
+
+      setUser(data.user);
+      setIsAuthenticated(true);
+
+      return { success: true, data };
     } catch (error) {
-      console.error('❌ Error en login:', error);
+      console.error("❌ Error login:", error);
       return { success: false, error: error.message };
     }
   };
@@ -113,27 +97,15 @@ export const AuthProvider = ({ children }) => {
         method: 'POST',
         credentials: 'include',
       });
-      console.log('✅ Logout exitoso');
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+      console.error("❌ Error logout:", error);
     } finally {
       setUser(null);
       setIsAuthenticated(false);
     }
   };
 
-  const value = {
-    user,
-    loading,
-    isAuthenticated,
-    login,
-    logout,
-    checkSession,
-  };
+  const value = { user, loading, isAuthenticated, login, logout, checkSession };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -9,21 +9,17 @@ const AdminCodeModal = ({ onClose, email }) => {
   const [loading, setLoading] = useState(false);
 
   const handleVerifyCode = async () => {
-    if (!code.trim()) {
-      toast.error("Por favor ingresa el código");
-      return;
-    }
+    if (!code.trim()) return toast.error("Por favor ingresa el código");
     setLoading(true);
     try {
       const res = await fetch("https://bluefruitnutrition1.onrender.com/api/admin/verify-code", {
-  method: "POST",
-  credentials: "include", // <- MUY importante
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ code }),
-});
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.message || "Código inválido");
 
       toast.success("Código verificado correctamente");
@@ -39,23 +35,19 @@ const AdminCodeModal = ({ onClose, email }) => {
     <div className="modal-overlay">
       <div className="modal-content">
         <h3>Verificación de código</h3>
-        <p>
-          Ingrese el código que se envió a su correo asociado a <b>{email}</b>
-        </p>
+        <p>Ingrese el código enviado a <b>{email}</b></p>
         <input
           type="text"
-          placeholder="Código de verificación"
           value={code}
-          onChange={(e) => setCode(e.target.value)}
+          onChange={e => setCode(e.target.value)}
           maxLength={6}
+          placeholder="Código de verificación"
           disabled={loading}
         />
         <button onClick={handleVerifyCode} disabled={loading}>
           {loading ? "Verificando..." : "Verificar"}
         </button>
-        <button onClick={onClose} disabled={loading} className="modal-close-btn">
-          Cancelar
-        </button>
+        <button onClick={onClose} disabled={loading} className="modal-close-btn">Cancelar</button>
       </div>
     </div>
   );
@@ -68,44 +60,29 @@ const Login = () => {
   const [adminEmail, setAdminEmail] = useState("");
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const navigate = useNavigate();
-  const { login, checkSession } = useAuthContext(); //  Usar el contexto
+  const { login, checkSession } = useAuthContext();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     if (loadingLogin) return;
-
-    if (email.trim() === "" || password.trim() === "") {
-      toast.error("Por favor completa todos los campos");
-      return;
-    }
+    if (!email.trim() || !password.trim()) return toast.error("Completa todos los campos");
 
     setLoadingLogin(true);
     try {
-      //  Usar la función login del contexto
       const result = await login(email, password);
+      if (!result.success) throw new Error(result.error);
 
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-
-      toast.success("Credenciales correctas");
-
-      //  Si es admin, manejar código de verificación
-      if (result.data.role === "admin") {
-        if (showAdminModal) return;
-
+      // Admin
+      if (result.data.user.role === "admin") {
         const sendCodeRes = await fetch("https://bluefruitnutrition1.onrender.com/api/admin/send-code", {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         });
-
         const sendCodeData = await sendCodeRes.json();
-
         if (!sendCodeRes.ok) throw new Error(sendCodeData.message || "Error enviando código");
 
         toast.success("Código enviado al correo. Por favor verifica.");
@@ -114,16 +91,10 @@ const Login = () => {
         return;
       }
 
-      //  Usuario normal: redirigir
+      // Usuario normal
       toast.success("Inicio de sesión exitoso");
-      
-      //  Refrescar la sesión para actualizar el contexto
       await checkSession();
-      
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
-      
+      navigate("/");
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -134,89 +105,40 @@ const Login = () => {
   return (
     <div className="login-container">
       <Toaster position="top-center" reverseOrder={false} />
-
-      {/* Lado izquierdo - Imagen */}
       <div className="left-side">
-        <div className="image-container">
-          <img src={"/imgregister.png"} alt="Triathlon promotional" className="promo-image" />
-        </div>
+        <img src="/imgregister.png" alt="Promo" className="promo-image" />
       </div>
-
-      {/* Lado derecho - Formulario */}
       <div className="right-side">
         <div className="form-wrapper">
-          <h2 className="form-title">Inicie sesión in BlueFruit</h2>
-          <p className="form-subtitle">Ingresa tus datos a continuación</p>
-
+          <h2>Inicie sesión en BlueFruit</h2>
           <form onSubmit={handleLogin} className="login-form">
-            <div className="input-group">
-              <input
-                type="email"
-                placeholder="Correo electrónico o número de teléfono"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="login-input"
-                required
-              />
-            </div>
-
-            <div className="input-group" style={{ position: "relative" }}>
+            <input
+              type="email"
+              placeholder="Correo electrónico"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+            />
+            <div style={{ position: "relative" }}>
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Contraseña"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="login-input"
+                onChange={e => setPassword(e.target.value)}
                 required
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0
-                }}
-                tabIndex={-1}
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              >
-                {showPassword ? (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2d3748" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
-                    <circle cx="12" cy="12" r="3"/>
-                  </svg>
-                ) : (
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2d3748" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a21.81 21.81 0 0 1 5.06-6.06"/>
-                    <path d="M1 1l22 22"/>
-                    <path d="M9.53 9.53A3 3 0 0 0 12 15a3 3 0 0 0 2.47-5.47"/>
-                  </svg>
-                )}
+              <button type="button" onClick={() => setShowPassword(prev => !prev)} tabIndex={-1}>
+                {showPassword ? "🙈" : "👁️"}
               </button>
             </div>
-
-            <button type="submit" className="login-btn" disabled={loadingLogin}>
+            <button type="submit" disabled={loadingLogin}>
               {loadingLogin ? "Procesando..." : "Iniciar Sesión"}
             </button>
-
-            <div className="forgot-password-container">
-              <a href="/enviar-codigo" className="forgot-password-link">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
           </form>
         </div>
       </div>
 
-      {/* Modal de código admin */}
-      {showAdminModal && (
-        <AdminCodeModal email={adminEmail} onClose={() => setShowAdminModal(false)} />
-      )}
+      {showAdminModal && <AdminCodeModal email={adminEmail} onClose={() => setShowAdminModal(false)} />}
     </div>
   );
 };

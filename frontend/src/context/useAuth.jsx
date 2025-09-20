@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       try {
         const res = await fetch(`${API_URL}/session/auth/session`, {
           method: "GET",
-          credentials: "include", // <- cookies httpOnly
+          credentials: "include", // cookies httpOnly
         });
 
         if (!res.ok) throw new Error("No autenticado");
@@ -68,9 +68,8 @@ export const AuthProvider = ({ children }) => {
       // Admin: redirigir a panel y enviar código
       if (result.role === "admin") {
         toast.success("Redirigiendo al panel de admin...");
-        // Aquí puedes manejar modal de código si quieres
         setTimeout(() => {
-          window.location.href = "https://blue-fruit-nutrition-private.vercel.app"; // o producción
+          window.location.href = "https://blue-fruit-nutrition-private.vercel.app"; // producción
         }, 1000);
         return;
       }
@@ -143,5 +142,3 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
-export default useAuthContext;
