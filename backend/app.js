@@ -35,11 +35,13 @@ app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:5174", "https://blue-fruit-nutrition-one.vercel.app", "https://blue-fruit-nutrition-private.vercel.app"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 // -------------------------------------------
 // Configuración de Swagger
