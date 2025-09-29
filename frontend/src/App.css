@@ -1,0 +1,85 @@
+/* Reset básico */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body, html, #root {
+  height: 100%;
+  width: 100%;
+  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #ffffff;
+  color: #0C133F;
+}
+
+/* Layout principal con sidebar + contenido */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Contenido principal con Nav */
+.main-content {
+  flex: 1;
+  margin-left: 220px; /* espacio del sidebar */
+  display: flex;
+  justify-content: center;   /* centra horizontal */
+  align-items: center;       /* centra vertical */
+  padding: 20px;
+  background: #ffffff;       /* fondo más claro */
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+/* Cuando no hay Nav (login/recovery), ocupa todo */
+.hide-nav .main-content {
+  margin-left: 0;
+}
+
+/* Centrado de contenido dentro de main-content */
+.main-content > * {
+  width: 100%;             /* ocupa todo el ancho disponible */
+  max-width: 1200px;       /* opcional: limita ancho máximo */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* centra vertical */
+  align-items: center;     /* centra horizontal */
+}
+
+/* --- Opcional: estilos que tenías --- */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #ffffff;
+}

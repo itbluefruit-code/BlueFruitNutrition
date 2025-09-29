@@ -1,0 +1,325 @@
+/* ========================================
+   REGISTRO - DISEÑO MODERNO (BOTONES AZULES, SIN toggle-password-btn)
+   ======================================== */
+
+/* Contenedor principal del registro */
+.registro-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  font-family: 'Inter', sans-serif;
+  padding: 20px;
+}
+
+/* Tarjeta de registro */
+.registro-card {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 950px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+  background: #fff;
+}
+
+/* ========================================
+   LADO IZQUIERDO - ILUSTRACIÓN
+   ======================================== */
+.registro-left {
+  flex: 1;
+  background: #0C133F;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.registro-left .registro-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* ========================================
+   LADO DERECHO - FORMULARIO
+   ======================================== */
+.registro-right {
+  flex: 1;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #fff;
+}
+
+.welcome-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0C133F;
+  margin-bottom: 5px;
+}
+
+.tipo-cuenta-titulo {
+  font-size: 18px;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Botones para tipo de usuario */
+.btn-switch-group {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.btn-switch {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #ddd;
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #0C133F;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-switch.active {
+  background: #1E40AF; /* azul activo */
+  color: #fff;
+  border-color: #1E40AF;
+  box-shadow: 0 4px 15px rgba(30,64,175,0.4);
+}
+
+.btn-switch:hover {
+  transform: translateY(-2px);
+}
+
+/* Iconos dentro de botones */
+.btn-switch-icon img {
+  width: 20px;
+  height: 20px;
+}
+
+/* ========================================
+   FORMULARIO
+   ======================================== */
+.registro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* Inputs modernos */
+.input-modern {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  color: #0C133F;
+  background: #f9f9f9;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.input-modern::placeholder {
+  color: #aaa;
+}
+
+.input-modern:focus {
+  border-color: #1E40AF;
+  box-shadow: 0 0 8px rgba(30,64,175,0.4);
+  background: #fff;
+}
+
+/* Mensajes de error */
+.input-error {
+  border-color: #ff4d4f;
+}
+
+.error-message {
+  font-size: 12px;
+  color: #ff4d4f;
+  margin-top: -12px;
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN - AZULES
+   ======================================== */
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.btn-primary {
+  flex: 1;
+  background: #1E40AF; /* azul principal */
+  color: #fff;
+  padding: 14px 0;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #1E3A8A; /* azul más oscuro en hover */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(30,64,175,0.4);
+}
+
+.btn-secondary {
+  flex: 1;
+  border: 2px solid #1E40AF; /* borde azul */
+  background: transparent;
+  color: #1E40AF; /* texto azul */
+  padding: 14px 0;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(30,64,175,0.1); /* fondo azul claro al pasar mouse */
+  color: #1E40AF;
+}
+
+/* ========================================
+   LOGIN LINK
+   ======================================== */
+.registro-login {
+  margin-top: 25px;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+}
+
+.registro-login a {
+  color: #1E40AF;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.registro-login a:hover {
+  text-decoration: underline;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 900px) {
+  .registro-card {
+    flex-direction: column;
+  }
+
+  .registro-left {
+    padding: 30px;
+  }
+
+  .registro-right {
+    padding: 40px 30px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* ========================================
+   MODAL DE VERIFICACIÓN DE CORREO
+   ======================================== */
+
+/* Overlay del modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Contenido del modal */
+.modal-content {
+  background: #fff;
+  padding: 40px 30px;
+  border-radius: 15px;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  animation: modalFade 0.3s ease-in-out;
+}
+
+.modal-content h2 {
+  font-size: 24px;
+  color: #1E40AF; /* Azul principal */
+  margin-bottom: 15px;
+}
+
+.modal-content p {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.modal-content .btn-primary {
+  padding: 12px 25px;
+  font-size: 15px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* Animación del modal */
+@keyframes modalFade {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+
+@media (max-width: 500px) {
+  .welcome-title {
+    font-size: 26px;
+  }
+
+  .tipo-cuenta-titulo {
+    font-size: 16px;
+  }
+
+  .btn-switch {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .input-modern {
+    padding: 12px 14px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,116 @@
+/* --- NAV COLOR --- */
+.inwood-navbar {
+  background: #0C133F;  /* color solicitado */
+  width: 100%;
+  padding: 10px 0;
+  position: fixed; 
+  top: 0;
+  left: 0;
+  z-index: 10000;
+}
+
+.inwood-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 25px;
+}
+
+/* --- Logo --- */
+.inwood-logo img {
+  height: 40px;
+  width: auto;
+}
+
+/* --- Menú central --- */
+.inwood-menu {
+  display: flex;
+  list-style: none;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+}
+
+.inwood-menu li a {
+  color: #ffffff; /* texto blanco para contraste */
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 4px;
+}
+
+/* Activo con subrayado */
+.inwood-menu li a.active {
+  font-weight: 600;
+}
+
+.inwood-menu li a.active::after,
+.inwood-menu li a:hover::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background: #ffffff; /* subrayado blanco */
+}
+
+/* --- Íconos derecha --- */
+.inwood-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;     
+  outline: none;    
+  cursor: pointer;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.15);
+}
+
+
+/* --- Dropdown perfil --- */
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 36px;
+  right: 0;
+  background: #fff;
+  border-radius: 6px;
+  list-style: none;
+  padding: 8px 0;
+  margin: 0;
+  min-width: 160px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.profile-dropdown li {
+  padding: 10px 16px;
+}
+
+.profile-dropdown li a {
+  color: #0C133F;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
+}
+
+.profile-dropdown li a:hover {
+  background: #f0f0f0;
+}

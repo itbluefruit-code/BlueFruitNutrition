@@ -1,0 +1,899 @@
+/* HOME - VERSION LIMPIA SIN CONFLICTOS */
+
+
+.blue-fruit-home {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* BANNER */
+.blue-fruit-banner-container {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.blue-fruit-banner-image {
+  width: 100%;
+  height: 100%;
+
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* SEPARADOR */
+.blue-fruit-separador {
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 1rem 2rem 0 2rem;
+  color: #001a4d;
+  margin: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* TITULO */
+.blue-fruit-home h1 {
+  text-align: center;
+  color: #001a4d;
+  font-size: 2rem;
+  margin: 20px 0;
+  padding: 0 2rem;
+  box-sizing: border-box;
+}
+
+/* PRODUCTOS SCROLL - MEDIDAS ORIGINALES */
+.blue-fruit-productos-scroll {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 1rem 2rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+
+.blue-fruit-productos-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.blue-fruit-product {
+  width: 200px;
+  min-width: 200px;
+  height: 280px;
+  text-align: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 10px;
+  transition: transform 0.3s;
+  flex-shrink: 0;
+  margin: 0;
+  perspective: 1000px; /* Para el efecto 3D */
+  cursor: pointer;
+}
+
+.blue-fruit-product:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}
+
+.blue-fruit-image-container {
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.blue-fruit-image-container img {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.blue-fruit-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fffefe;
+  font-weight: bold;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  opacity: 0;
+}
+
+.blue-fruit-product:hover .blue-fruit-overlay {
+  opacity: 1;
+}
+
+.blue-fruit-product p {
+  margin: 0;
+  padding: 10px 0 0 0;
+  font-weight: normal;
+  color: #333;
+}
+
+.blue-fruit-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  border-radius: 8px;
+}
+.blue-fruit-product.flipped .blue-fruit-card-inner {
+  transform: rotateY(180deg);
+}
+
+.blue-fruit-card-front,
+.blue-fruit-card-back {
+  position: absolute;
+  width: 100%;
+  backface-visibility: hidden;
+  border-radius: 8px;
+  top: 0;
+  left: 0;
+}
+.blue-fruit-card-back {
+  transform: rotateY(180deg);
+  background-color: #001a4d;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
+  font-weight: bold;
+  font-size: 1em;
+  text-align: center;
+  height: 100%; /* para ocupar toda la altura */
+}
+
+
+/* BOTON VER TODOS */
+.blue-fruit-boton-ver-todos-container {
+  text-align: center;
+  margin: 2rem 0;
+  padding: 0 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.blue-fruit-boton-ver-todos {
+  padding: 12px 24px;
+  background-color: #001a4d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+}
+
+.blue-fruit-boton-ver-todos:hover {
+  background-color: #003366;
+}
+
+/* LINEA SEPARADORA */
+.blue-fruit-linea-separadora {
+  width: 80%;
+  max-width: 800px;
+  margin: 30px auto;
+  border: none;
+  border-top: 2px solid #ddd;
+  display: block;
+}
+
+/* HISTORIA */
+.blue-fruit-historia {
+  padding: 4rem 2rem;
+  background-color: #f8f9fa;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.blue-fruit-historia h2 {
+  color: #001a4d;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.blue-fruit-historia-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3rem;
+  justify-content: center;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.blue-fruit-historia-text {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+  text-align: left;
+}
+
+.blue-fruit-historia-text p {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+}
+
+.blue-fruit-historia-text ul {
+  margin-top: 1rem;
+  list-style: disc;
+  padding-left: 1.5rem;
+  color: #555;
+}
+
+.blue-fruit-historia-text li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.blue-fruit-historia-content img {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* ICONOS */
+.blue-fruit-iconos {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  padding: 4rem 2rem;
+  background: white;
+  text-align: center;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.blue-fruit-icono {
+  flex: 1;
+  min-width: 250px;
+  max-width: 300px;
+  padding: 2rem;
+}
+
+.blue-fruit-icono img {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem auto;
+  display: block;
+}
+
+.blue-fruit-icono h2 {
+  color: #001a4d;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+
+.blue-fruit-icono p {
+  color: #666;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+/* EQUIPO */
+.blue-fruit-equipo {
+  padding: 4rem 2rem;
+  background-color: #f8f9fa;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.blue-fruit-equipo h2 {
+  color: #001a4d;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.blue-fruit-miembros {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.blue-fruit-miembro {
+  text-align: center;
+  padding: 1rem;
+  min-width: 150px;
+}
+
+.blue-fruit-miembro img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  margin: 0 auto 1rem auto;
+  display: block;
+}
+
+.blue-fruit-miembro h4 {
+  color: #001a4d;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.blue-fruit-miembro p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* CONTACTO */
+.blue-fruit-contact-section {
+  padding: 4rem 2rem;
+  background-color: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.blue-fruit-contact-section h2 {
+  text-align: center;
+  color: #001a4d;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  font-weight: bold;
+}
+
+.blue-fruit-contact-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.blue-fruit-contact-info {
+  background-color: #f8f9fa;
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 350px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 300px;
+}
+
+.blue-fruit-contact-info h3 {
+  color: #001a4d;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+}
+
+.blue-fruit-contact-info p {
+  color: #555;
+  line-height: 1.5;
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+}
+
+.blue-fruit-contact-info hr {
+  margin: 1.5rem 0;
+  border: 0;
+  height: 1px;
+  background: #dee2e6;
+}
+
+.blue-fruit-contact-form {
+  background-color: #f8f9fa;
+  padding: 30px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 300px;
+}
+
+.blue-fruit-contact-form input,
+.blue-fruit-contact-form textarea {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 1rem;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background-color: #ffffff;
+  color: #333;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.blue-fruit-contact-form input:focus,
+.blue-fruit-contact-form textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.blue-fruit-contact-form button {
+  background-color: #001a4d;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  float: right;
+  transition: background-color 0.3s;
+}
+
+.blue-fruit-contact-form button:hover {
+  background-color: #003366;
+}
+
+/* BOTON DE WHATSAPP FIJO CON TEXTO */
+.blue-fruit-whatsapp-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #25D366; /* verde WhatsApp */
+  color: white;
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 50px;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  text-decoration: none;
+  z-index: 1000;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.blue-fruit-whatsapp-button img {
+  width: 30px;
+  height: 30px;
+}
+
+.blue-fruit-whatsapp-button span {
+  display: inline-block;
+}
+
+.blue-fruit-whatsapp-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .blue-fruit-historia-content {
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+  }
+  
+  .blue-fruit-historia-text {
+    text-align: center;
+  }
+  
+  .blue-fruit-iconos {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .blue-fruit-icono {
+    min-width: auto;
+    max-width: 100%;
+  }
+  
+  .blue-fruit-miembros {
+    gap: 1.5rem;
+  }
+  
+  .blue-fruit-contact-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .blue-fruit-contact-info,
+  .blue-fruit-contact-form {
+    max-width: 100%;
+  }
+  
+  .blue-fruit-separador,
+  .blue-fruit-home h1 {
+    padding: 1rem 20px;
+  }
+  
+  .blue-fruit-produtos-scroll {
+    padding: 1rem 20px;
+  }
+  
+  .blue-fruit-historia,
+  .blue-fruit-equipo,
+  .blue-fruit-contact-section {
+    padding: 3rem 20px;
+  }
+  
+  .blue-fruit-iconos {
+    padding: 3rem 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .blue-fruit-product {
+    min-width: 160px;
+    width: 160px;
+    padding: 10px;
+  }
+  
+  .blue-fruit-image-container img {
+    height: 120px;
+    object-fit: cover;
+  }
+  
+  .blue-fruit-historia h2,
+  .blue-fruit-equipo h2,
+  .blue-fruit-contact-section h2 {
+    font-size: 1.5rem;
+  }
+  
+  .blue-fruit-home h1 {
+    font-size: 1.5rem;
+  }
+  
+  .blue-fruit-historia,
+  .blue-fruit-equipo,
+  .blue-fruit-contact-section,
+  .blue-fruit-iconos {
+    padding: 2rem 15px;
+  }
+}
+@media (max-width: 768px) {
+  .blue-fruit-banner-container {
+    display: none;
+  }
+}
+@media (max-width: 768px) {
+  .blue-fruit-banner-container {
+    display: none;
+  }
+}
+
+.ener-image {
+  width: 300px;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  object-fit: contain;
+}
+/* BOTÓN DE CHATBOT */
+.blue-fruit-chatbot-button {
+  position: fixed;
+  bottom: 90px; /* sobre el WhatsApp */
+  right: 20px;
+  background: linear-gradient(135deg, #4e54c8, #8f94fb);
+  color: #fff;
+  border-radius: 50%;
+  width: 55px;
+  height: 55px;
+  font-size: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1001;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  border: none;
+  outline: none;
+  transition: transform 0.2s;
+}
+.blue-fruit-chatbot-button:hover {
+  transform: scale(1.1);
+}
+
+/* BOTÓN DE WHATSAPP */
+.blue-fruit-whatsapp-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #25D366;
+  color: white;
+  border-radius: 50px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  text-decoration: none;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.blue-fruit-whatsapp-button span {
+  margin-left: 8px;
+}
+
+/* MODAL DEL CHATBOT CENTRADO */
+.blue-fruit-chatbot-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1002;
+  padding: 10px; /* espacio para móviles */
+}
+
+.blue-fruit-chatbot-modal-content {
+  background: #fff;
+  width: 400px;
+  max-width: 95%;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Botón cerrar */
+.blue-fruit-chatbot-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #1a1a3a;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.blue-fruit-chatbot-close:hover {
+  transform: scale(1.2);
+  color: #cc0000;
+}
+
+/* Contenedor interno del chat */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: #f5f5f5;
+}
+
+/* Header */
+.chat-header {
+  background-color: #1a1a3a;
+  color: white;
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* Chat box */
+.chat-box {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  gap: 6px;
+  background-color: #fafafa;
+}
+
+/* Mensajes */
+.message {
+  display: flex;
+}
+
+.message.user {
+  justify-content: flex-end;
+}
+
+.message.bot {
+  justify-content: flex-start;
+}
+
+.message-text {
+  padding: 10px 14px;
+  border-radius: 20px;
+  max-width: 70%;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.message.user .message-text {
+  background: #66ccff;
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+
+.message.bot .message-text {
+  background: #1a1a3a;
+  color: #fff;
+  border-bottom-left-radius: 4px;
+}
+
+/* Input area */
+.input-area {
+  display: flex;
+  gap: 6px;
+  padding: 10px 15px;
+  background-color: #f0f0f0;
+  align-items: center;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 10px 15px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
+  transition: border 0.2s ease;
+}
+
+.input-area input:focus {
+  border-color: #66ccff;
+}
+
+.input-area button {
+  padding: 10px 16px;
+  border-radius: 25px;
+  border: none;
+  background-color: #1a1a3a;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.input-area button:hover {
+  background-color: #333366;
+}
+
+/* Botón limpiar ícono */
+.clear-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  width: 32px;
+  height: 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a1a3a;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.clear-btn:hover {
+  transform: scale(1.3);
+  color: #cc0000;
+}
+
+/* Scrollbar moderno */
+.chat-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+  background-color: #1a1a3a;
+  border-radius: 3px;
+}
+
+.chat-box::-webkit-scrollbar-track {
+  background-color: #fafafa;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .blue-fruit-chatbot-modal-content {
+    height: 450px;
+    width: 95%;
+  }
+
+  .chat-box {
+    height: 300px;
+    padding: 12px;
+  }
+
+  .message-text {
+    font-size: 13px;
+  }
+}
+/* ====================== */
+/* BOTÓN CHATBOT MEJORADO */
+/* ====================== */
+.blue-fruit-chatbot-button {
+  position: fixed;
+  bottom: 90px; /* sobre el WhatsApp */
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4e54c8, #8f94fb);
+  color: #fff;
+  font-size: 26px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1001;
+  border: none;
+  outline: none;
+  box-shadow: 0 4px 15px rgba(78, 84, 200, 0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+/* Hover con efecto de glow animado */
+.blue-fruit-chatbot-button:hover {
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 8px 25px rgba(78, 84, 200, 0.7), 0 0 15px rgba(142, 148, 251, 0.6);
+  background: linear-gradient(135deg, #5a5fe0, #9c99ff);
+}
+
+/* Animación sutil de glow pulsante */
+@keyframes glow {
+  0% {
+    box-shadow: 0 4px 15px rgba(78, 84, 200, 0.5), 0 0 10px rgba(142, 148, 251, 0.4);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(78, 84, 200, 0.6), 0 0 20px rgba(142, 148, 251, 0.6);
+  }
+  100% {
+    box-shadow: 0 4px 15px rgba(78, 84, 200, 0.5), 0 0 10px rgba(142, 148, 251, 0.4);
+  }
+}
+
+.blue-fruit-chatbot-button {
+  animation: glow 2s infinite ease-in-out;
+}
+
+
+
+

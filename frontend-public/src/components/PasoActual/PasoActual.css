@@ -1,0 +1,43 @@
+.stepper-container {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 2rem;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: lightgray;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.circle.active {
+  background: #007bff;
+  color: white;
+}
+
+.circle.completed {
+  background: #28a745;
+  color: white;
+}
+
+.label {
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.checkmark {
+  font-size: 1.1rem;
+}

@@ -1,0 +1,125 @@
+.perfil-page {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #f5f5f5;
+  color: #000;
+}
+
+.perfil-left,
+.perfil-right {
+  flex: 1;
+  min-width: 320px;
+}
+
+.perfil-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(12, 19, 63, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.perfil-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #0c133f;
+  margin-bottom: 1rem;
+}
+
+.perfil-fields label {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+  color: #0c133f;
+}
+
+.perfil-fields input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  margin-top: 0.3rem;
+  background-color: #f5f5f5;
+}
+
+.perfil-fields input:disabled {
+  opacity: 0.7;
+}
+
+.perfil-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1.2rem;
+}
+
+.btn-edit,
+.btn-save,
+.btn-logout {
+  flex: 1;
+  border: none;
+  padding: 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-edit {
+  background-color: #0c133f;
+  color: #ffffff;
+}
+
+.btn-save {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.btn-logout {
+  background-color: #dcdcdc;
+  color: #ffffff; /* Texto blanco */
+  transition: background-color 0.2s ease;
+}
+
+.btn-logout:hover {
+  background-color: #bfbfbf; /* Hover sutil */
+}
+
+.orders-card .order-item,
+.address-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.8rem;
+  border-bottom: 1px solid #dcdcdc;
+  background: #ffffff;
+  border-radius: 8px;
+  margin-bottom: 0.8rem;
+}
+
+.order-info span {
+  display: block;
+}
+
+.order-status {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.order-status.pendiente {
+  color: #0c133f;
+}
+.order-status.completada {
+  color: green;
+}
+.order-status.cancelada {
+  color: red;
+}
+
+.empty-orders {
+  text-align: center;
+  color: #000;
+  opacity: 0.8;
+}
