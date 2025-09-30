@@ -1,22 +1,19 @@
 import customersModel from "../models/Customers.js";
 import distributorsModel from "../models/Distributors.js";
-
 import bcrypt from "bcryptjs";
 import jsonwebtoken from "jsonwebtoken";
 import { config } from "../config.js";
 
 const loginController = {};
 
-// Registro de intentos fallidos por email
 const loginAttempts = {};
-const MAX_ATTEMPTS = 5; // 5 intentos permitidos
-const BLOCK_TIME_MS = 10 * 60 * 1000; // 10 minutos
+const MAX_ATTEMPTS = 5;
+const BLOCK_TIME_MS = 10 * 60 * 1000;
 
 loginController.login = async (req, res) => {
   const { email, password } = req.body;
   const now = Date.now();
 
-  // Verificar si el usuario está bloqueado por demasiados intentos fallidos
   const attemptData = loginAttempts[email];
   if (attemptData) {
     if (
@@ -30,7 +27,6 @@ loginController.login = async (req, res) => {
         message: `Demasiados intentos. Intenta en ${remainingTime} minutos.`,
       });
     } else if (now - attemptData.lastAttempt >= BLOCK_TIME_MS) {
-      // Reiniciar contador después de que pase el tiempo de bloqueo
       loginAttempts[email] = { attempts: 0, lastAttempt: now };
     }
   }
@@ -41,12 +37,6 @@ loginController.login = async (req, res) => {
 
     console.log("Intentando iniciar sesión con:", email);
 
-    /** 
-     * -----------------------------
-     * LOGIN DE ADMINISTRADOR
-     * -----------------------------
-     * El admin se valida con las credenciales guardadas en config.js
-     */
     if (
       email === config.emailAdmin.email &&
       password === config.emailAdmin.password
@@ -54,40 +44,27 @@ loginController.login = async (req, res) => {
       userType = "admin";
       console.log("Login de administrador exitoso");
 
-      // Simulamos un usuario admin con un _id fijo
+      // ✅ Usar un ID único generado en lugar de "adminId"
       userFound = {
-        _id: "adminId",
+        _id: "507f1f77bcf86cd799439011", // ID válido de MongoDB para admin
         email: config.emailAdmin.email,
         name: "Administrador"
       };
     } else {
-      /**
-       * -----------------------------
-       * LOGIN DE DISTRIBUIDOR O CLIENTE
-       * -----------------------------
-       */
       userFound = await distributorsModel.findOne({ email });
       userType = "distributor";
 
-      // Si no es distribuidor, buscar en clientes
       if (!userFound) {
         userFound = await customersModel.findOne({ email });
         userType = "customer";
       }
     }
 
-    // Si no se encontró usuario en ninguna categoría
     if (!userFound) {
       recordFailedAttempt(email, now);
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    /**
-     * -----------------------------
-     * VALIDACIÓN DE CONTRASEÑA
-     * -----------------------------
-     * El admin no necesita validar contraseña contra la base de datos
-     */
     if (userType !== "admin") {
       const isMatch = await bcrypt.compare(password, userFound.password);
       if (!isMatch) {
@@ -99,19 +76,15 @@ loginController.login = async (req, res) => {
       }
     }
 
-    // Si el login fue correcto, limpiar intentos fallidos
     if (loginAttempts[email]) delete loginAttempts[email];
 
-    /**
-     * -----------------------------
-     * CREAR TOKEN JWT
-     * -----------------------------
-     */
+    // ✅ Incluir name en el token
     const tokenPayload = {
       id: userFound._id,
       email: userFound.email || email,
+      name: userFound.name || userFound.companyName || "Usuario",
       userType,
-      role: userType // rol explícito para el frontend
+      role: userType
     };
 
     const token = jsonwebtoken.sign(
@@ -120,25 +93,15 @@ loginController.login = async (req, res) => {
       { expiresIn: config.JWT.expiresIn }
     );
 
-    /**
-     * -----------------------------
-     * CREAR COOKIE
-     * -----------------------------
-     */
-res.cookie("authToken", token, {
+ res.cookie("authToken", token, {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production", // solo true en producción
-  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+  secure: false, // ✅ local
+  sameSite: "Lax", // ✅ permite login local
   maxAge: 24 * 60 * 60 * 1000,
 });
 
+    console.log("Cookie authToken establecida");
 
-console.log("Cookie authToken establecida + token+:", token + " y cookie: " + req.cookies.authToken);
-    /**
-     * -----------------------------
-     * RESPUESTA FINAL
-     * -----------------------------
-     */
     const userData = {
       id: userFound._id,
       email: userFound.email || email,
@@ -147,7 +110,6 @@ console.log("Cookie authToken establecida + token+:", token + " y cookie: " + re
       isAuthenticated: true
     };
     
-    //nombre del usuario
     console.log("Usuario autenticado:", userData.name);
 
     return res.json({
@@ -156,7 +118,6 @@ console.log("Cookie authToken establecida + token+:", token + " y cookie: " + re
       user: userData,
       namek: userData.name,
       token: token
-      
     });
 
   } catch (error) {
@@ -165,9 +126,6 @@ console.log("Cookie authToken establecida + token+:", token + " y cookie: " + re
   }
 };
 
-/**
- * Función auxiliar para registrar intentos fallidos
- */
 function recordFailedAttempt(email, now) {
   if (!loginAttempts[email]) {
     loginAttempts[email] = { attempts: 1, lastAttempt: now };

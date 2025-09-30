@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// src/components/Nav/Nav.jsx
+import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FiShoppingCart, FiUser } from "react-icons/fi";
 import { useAuthContext } from "../../context/useAuth";
@@ -6,17 +7,13 @@ import "./Nav.css";
 
 const Nav = () => {
   const { isAuthenticated } = useAuthContext();
-  const [showMenu, setShowMenu] = useState(false);
-  const toggleMenu = () => setShowMenu((prev) => !prev);
-  const closeMenu = () => setShowMenu(false);
-
-  const location = useLocation(); // 👉 para saber qué ruta está activa
+  const location = useLocation();
 
   return (
     <nav className="inwood-navbar">
       <div className="inwood-container">
         <div className="inwood-logo">
-          <img src="/Logo_Blue_Fruit.png" alt="Blue Fruit" />
+          <img src="/logoBlueFruitt.png" alt="Blue Fruit" />
         </div>
 
         {/* --- Menú central --- */}
@@ -42,14 +39,18 @@ const Nav = () => {
               Productos
             </Link>
           </li>
-          <li>
-            <Link
-              to="/carrito"
-              className={location.pathname === "/carrito" ? "active" : ""}
-            >
-              Carrito
-            </Link>
-          </li>
+
+          {isAuthenticated && (
+            <li>
+              <Link
+                to="/carrito"
+                className={location.pathname === "/carrito" ? "active" : ""}
+              >
+                Carrito
+              </Link>
+            </li>
+          )}
+
           <li>
             <Link
               to="/suscripciones"
@@ -57,49 +58,31 @@ const Nav = () => {
             >
               Suscripciones
             </Link>
-            </li>
+          </li>
         </ul>
 
         {/* --- Íconos derecha --- */}
         <div className="inwood-icons">
-          {/* --- Carrito --- */}
-          <Link to="/carrito" className="icon-btn" aria-label="Carrito">
-            <FiShoppingCart size={20} />
-          </Link>
+          {isAuthenticated && (
+            <Link to="/carrito" className="icon-btn" aria-label="Carrito">
+              <FiShoppingCart size={24} />
+            </Link>
+          )}
 
-          {/* --- Perfil --- */}
-          <div className="profile-wrapper">
-            {isAuthenticated ? (
-              <Link to="/perfil" className="icon-btn" aria-label="Perfil">
-                <FiUser size={20} />
+          {isAuthenticated ? (
+            <Link to="/perfil" className="icon-btn" aria-label="Perfil">
+              <FiUser size={24} />
+            </Link>
+          ) : (
+            <div className="auth-buttons">
+              <Link to="/login" className="btn-login">
+                Iniciar Sesión
               </Link>
-            ) : (
-              <>
-                <button
-                  onClick={toggleMenu}
-                  className="icon-btn"
-                  aria-label="Menú perfil"
-                >
-                  <FiUser size={20} />
-                </button>
-
-                {showMenu && (
-                  <ul className="profile-dropdown">
-                    <li>
-                      <Link to="/login" onClick={closeMenu}>
-                        Iniciar Sesión
-                      </Link>
-                    </li>
-                    <li>
-                      <Link to="/registro" onClick={closeMenu}>
-                        Registrarse
-                      </Link>
-                    </li>
-                  </ul>
-                )}
-              </>
-            )}
-          </div>
+              <Link to="/registro" className="btn-register">
+                Regístrate
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </nav>

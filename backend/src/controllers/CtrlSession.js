@@ -1,13 +1,23 @@
+// src/controllers/CtrlSession.js
 import jwt from "jsonwebtoken";
+import { config } from "../config.js";
 
 export const checkSession = (req, res) => {
-  const token = req.cookies?.authToken;
-  if (!token) return res.status(401).json({ message: "No autenticado" });
-
   try {
-    const data = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({ id: data.id, name: data.name, email: data.email });
-  } catch (err) {
-    res.status(401).json({ message: "Sesión inválida" });
+    const token = req.cookies.authToken;
+    if (!token) return res.status(401).json({ message: "No autenticado" });
+
+    const decoded = jwt.verify(token, config.JWT.secret);
+
+    return res.json({
+      id: decoded.id,
+      email: decoded.email,
+      name: decoded.name,
+      role: decoded.role,
+      isAuthenticated: true,
+    });
+  } catch (error) {
+    console.error("Error en checkSession:", error);
+    return res.status(401).json({ message: "Sesión inválida" });
   }
 };

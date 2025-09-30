@@ -8,10 +8,8 @@ import {
   FiUser,
   FiMail,
   FiPhone,
-  FiMapPin,
   FiPackage,
   FiHome,
-  FiTrash2,
 } from "react-icons/fi";
 import "./Portfile.css";
 
@@ -24,62 +22,96 @@ const Perfil = () => {
   const [formData, setFormData] = useState({});
   const navigate = useNavigate();
 
-  const API_URL = "https://bluefruitnutrition-production.up.railway.app/api";
+  // Backend corre en puerto 4000
+  const API_URL = "http://localhost:4000/api";
 
-  // ✅ Verifica sesión activa
-  const checkSession = async () => {
-    try {
-      const res = await fetch(`${API_URL}/session/auth/session`, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error("Sesión inválida");
-      const data = await res.json();
+  // Verifica sesión activa
+const checkSession = async () => {
+  try {
+    const res = await fetch(`${API_URL}/session/auth/session`, {
+      method: "GET",
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Sesión inválida");
+    const data = await res.json();
+    console.log("📋 Datos del backend:", data);
+      console.log("🆔 ID:", data.id);
+      console.log("👤 Nombre:", data.name);
+      
       setUserData(data);
       setFormData({
-        name: data.name,
-        email: data.email,
+        name: data.name || "",
+        email: data.email || "",
         phone: data.phone || "",
         address: data.address || "",
       });
-      fetchOrders(data.id);
-      fetchAddresses(data.id);
-    } catch {
+      
+      // Solo cargar órdenes y direcciones si no es admin
+      if (data.role !== "admin") {
+        fetchOrders(data.id);
+        fetchAddresses(data.id);
+      }
+    } catch (error) {
+      console.error("Error en sesión:", error);
       navigate("/login");
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Trae historial de órdenes
+  // Trae historial de órdenes
   const fetchOrders = async (userId) => {
+    if (!userId) {
+      setOrders([]);
+      return;
+    }
+    
     try {
       const res = await fetch(`${API_URL}/ordenes/user/${userId}`, {
         credentials: "include",
       });
-      if (!res.ok) throw new Error("No se pudo cargar historial");
+      if (!res.ok) {
+        if (res.status === 404) {
+          setOrders([]);
+          return;
+        }
+        throw new Error("No se pudo cargar historial");
+      }
       const data = await res.json();
       setOrders(data);
     } catch (error) {
       console.error("Error cargando órdenes:", error);
+      setOrders([]);
     }
   };
 
-  // ✅ Trae direcciones guardadas
+  // Trae direcciones guardadas
   const fetchAddresses = async (userId) => {
+    if (!userId) {
+      setAddresses([]);
+      return;
+    }
+    
     try {
       const res = await fetch(`${API_URL}/direcciones/user/${userId}`, {
         credentials: "include",
       });
-      if (!res.ok) throw new Error("No se pudieron cargar direcciones");
+      if (!res.ok) {
+        if (res.status === 404) {
+          setAddresses([]);
+          return;
+        }
+        throw new Error("No se pudieron cargar direcciones");
+      }
       const data = await res.json();
       setAddresses(data);
     } catch (error) {
       console.error("Error cargando direcciones:", error);
+      setAddresses([]);
     }
   };
 
-  // ✅ Guardar perfil editado
+  // Guardar perfil editado
   const handleSaveProfile = async () => {
     const confirm = await Swal.fire({
       title: "¿Guardar cambios?",
@@ -107,7 +139,7 @@ const Perfil = () => {
     }
   };
 
-  // ✅ Logout
+  // Logout
   const handleLogout = async () => {
     const confirm = await Swal.fire({
       title: "¿Cerrar sesión?",
@@ -120,16 +152,29 @@ const Perfil = () => {
 
     try {
       const res = await fetch(`${API_URL}/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
+  method: "POST",
+  credentials: "include",
+});
+      
+      // Limpiar estado local
+      setUserData(null);
+      setOrders([]);
+      setAddresses([]);
+      setFormData({});
+      
       if (res.ok) {
-        setUserData(null);
-        Swal.fire({ icon: "success", title: "Sesión cerrada", timer: 1500 });
-        navigate("/login");
+        await Swal.fire({ 
+          icon: "success", 
+          title: "Sesión cerrada", 
+          timer: 1500,
+          showConfirmButton: false 
+        });
       }
-    } catch {
-      Swal.fire({ icon: "error", title: "Error en el servidor" });
+      
+      navigate("/");
+    } catch (error) {
+      console.error("Error en logout:", error);
+      navigate("/");
     }
   };
 
@@ -145,7 +190,6 @@ const Perfil = () => {
 
   return (
     <div className="perfil-page">
-      {/* 👤 Perfil */}
       <div className="perfil-left">
         <div className="perfil-card">
           <h2>
@@ -194,56 +238,58 @@ const Perfil = () => {
           </div>
         </div>
 
-        {/* 🏠 Direcciones guardadas */}
-        <div className="perfil-card">
-          <h2>
-            <FiHome /> Mis Direcciones
-          </h2>
-          {addresses.length === 0 ? (
-            <p className="empty-orders">No tienes direcciones guardadas aún</p>
-          ) : (
-            addresses.map((dir) => (
-              <div key={dir._id} className="address-item">
-                <div>
-                  <strong>{dir.alias || "Dirección guardada"}</strong>
-                  <p>{dir.direccionCompleta}</p>
-                  <small>
-                    {dir.departamento}, {dir.municipio}
-                  </small>
+        {userData.role !== "admin" && (
+          <div className="perfil-card">
+            <h2>
+              <FiHome /> Mis Direcciones
+            </h2>
+            {addresses.length === 0 ? (
+              <p className="empty-orders">No tienes direcciones guardadas aún</p>
+            ) : (
+              addresses.map((dir) => (
+                <div key={dir._id} className="address-item">
+                  <div>
+                    <strong>{dir.alias || "Dirección guardada"}</strong>
+                    <p>{dir.direccionCompleta}</p>
+                    <small>
+                      {dir.departamento}, {dir.municipio}
+                    </small>
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
-      {/* 📦 Órdenes */}
       <div className="perfil-right">
-        <div className="orders-card">
-          <h2>
-            <FiPackage /> Historial de Órdenes
-          </h2>
-          {orders.length === 0 ? (
-            <p className="empty-orders">No hay órdenes aún</p>
-          ) : (
-            orders.map((order) => (
-              <div key={order._id} className="order-item">
-                <div>
-                  <strong>Orden #{order._id.slice(-6)}</strong>
-                  <p>{new Date(order.createdAt).toLocaleDateString()}</p>
+        {userData.role !== "admin" && (
+          <div className="orders-card">
+            <h2>
+              <FiPackage /> Historial de Órdenes
+            </h2>
+            {orders.length === 0 ? (
+              <p className="empty-orders">No hay órdenes aún</p>
+            ) : (
+              orders.map((order) => (
+                <div key={order._id} className="order-item">
+                  <div>
+                    <strong>Orden #{order._id.slice(-6)}</strong>
+                    <p>{new Date(order.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <div className="order-info">
+                    <span>Total: ${order.total.toFixed(2)}</span>
+                    <span
+                      className={`order-status ${order.status.toLowerCase()}`}
+                    >
+                      {order.status}
+                    </span>
+                  </div>
                 </div>
-                <div className="order-info">
-                  <span>Total: ${order.total.toFixed(2)}</span>
-                  <span
-                    className={`order-status ${order.status.toLowerCase()}`}
-                  >
-                    {order.status}
-                  </span>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

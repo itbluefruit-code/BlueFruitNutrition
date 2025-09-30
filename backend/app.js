@@ -4,7 +4,7 @@ import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
 
-// Rutas
+// 🔹 Rutas
 import productsRoutes from "./src/routes/products.js";
 import customersRouter from "./src/routes/customers.js";
 import distributorsRoutes from "./src/routes/distributors.js";
@@ -30,58 +30,49 @@ import profileRoutes from "./src/routes/profile.js";
 import recommendationRoutes from "./src/routes/recommendation.js";
 import authRoutes from "./src/routes/authRoutes.js";
 
-
 const app = express();
 
-// -------------------------------------------
-// CORS seguro con cookies
-// -------------------------------------------
+// =====================================================
+// 🌐 CORS local con cookies habilitadas
+// =====================================================
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://bluefruitnutrition-production.up.railway.app",
-  "https://blue-fruit-nutrition-git-master-bluefruitnutrition.vercel.app",
-  "https://blue-fruit-nutrition-private.vercel.app",
-  "https://blue-fruit-nutrition-4vhs.vercel.app",
 ];
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
+
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET,POST,PUT,DELETE,OPTIONS"
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
-    );
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   }
 
-  if (req.method === "OPTIONS") return res.sendStatus(204);
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
   next();
 });
 
-// -------------------------------------------
-// JSON y cookies
-// -------------------------------------------
+// =====================================================
+// 🧩 Middlewares base
+// =====================================================
 app.use(express.json());
 app.use(cookieParser());
 
-// -------------------------------------------
-// Swagger
-// -------------------------------------------
-const swaggerFilePath = path.resolve(
-  "./bluefruit-bluefruit_api-1.0.0-swagger.json"
-);
+// =====================================================
+// 📘 Swagger (documentación API local)
+// =====================================================
+const swaggerFilePath = path.resolve("./bluefruit-bluefruit_api-1.0.0-swagger.json");
 const swaggerDocument = JSON.parse(fs.readFileSync(swaggerFilePath, "utf-8"));
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// -------------------------------------------
-// Endpoints
-// -------------------------------------------
+// =====================================================
+// 🛠️ Rutas API
+// =====================================================
 app.use("/api/products", productsRoutes);
 app.use("/api/customers", customersRouter);
 app.use("/api/distributors", distributorsRoutes);
@@ -106,17 +97,19 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/recommendation", recommendationRoutes);
 app.use("/api/auth", authRoutes);
 
+// 🔹 Ruta de sesión protegida (verifica cookie)
+app.use("/api/session", sessionRouter); // GET /api/session/auth/session
 
-// 🔹 Ruta de sesión protegida
-app.use("/api/session", sessionRouter); // router define GET /auth/session
+// =====================================================
+// ⚠️ Manejo de errores
+// =====================================================
 
-// -------------------------------------------
-// Manejo de errores simples
-// -------------------------------------------
-app.use((req, res, next) => {
+// 404
+app.use((req, res) => {
   res.status(404).json({ message: "Ruta no encontrada" });
 });
 
+// 500
 app.use((err, req, res, next) => {
   console.error("Error interno:", err);
   res.status(500).json({ message: "Error interno del servidor" });

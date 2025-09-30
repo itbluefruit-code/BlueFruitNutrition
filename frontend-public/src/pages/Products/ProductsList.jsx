@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import './ProductsList.css';
+import './Products.css';
 
 const ProductsList = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedFlavors, setSelectedFlavors] = useState({}); // Para manejar sabor seleccionado por producto
+  const [selectedFlavors, setSelectedFlavors] = useState({});
 
   useEffect(() => {
     fetchProducts();
@@ -19,17 +19,16 @@ const ProductsList = () => {
       const response = await fetch('http://localhost:4000/api/products', {
         credentials: 'include'
       });
-      
+
       if (!response.ok) {
         throw new Error('Error al cargar productos');
       }
 
       const data = await response.json();
-      
-      // Procesar productos y sus sabores
+
       const processedProducts = data.map(product => {
         let flavorsArray = [];
-        
+
         if (product.flavor) {
           if (typeof product.flavor === 'string') {
             try {
@@ -37,7 +36,7 @@ const ProductsList = () => {
               if (!Array.isArray(flavorsArray)) {
                 flavorsArray = [product.flavor];
               }
-            } catch (error) {
+            } catch {
               flavorsArray = [product.flavor];
             }
           } else if (Array.isArray(product.flavor)) {
@@ -47,7 +46,6 @@ const ProductsList = () => {
           }
         }
 
-        // Limpiar sabores vacíos
         flavorsArray = flavorsArray.filter(f => f && f.trim().length > 0);
 
         return { ...product, flavor: flavorsArray };
@@ -55,7 +53,6 @@ const ProductsList = () => {
 
       setProducts(processedProducts);
 
-      // Inicializar sabores seleccionados (primer sabor de cada producto)
       const initialFlavors = {};
       processedProducts.forEach(product => {
         if (product.flavor && product.flavor.length > 0) {
@@ -81,7 +78,7 @@ const ProductsList = () => {
 
   const handleAddToCart = (product) => {
     const selectedFlavor = selectedFlavors[product._id];
-    
+
     if (product.flavor && product.flavor.length > 0 && !selectedFlavor) {
       toast.error("Por favor selecciona un sabor");
       return;
@@ -89,8 +86,6 @@ const ProductsList = () => {
 
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     const productId = product._id;
-
-    // Crear ID único con sabor
     const uniqueId = selectedFlavor ? `${productId}_${selectedFlavor}` : productId;
 
     const existente = carrito.find(p => p.id === uniqueId);
@@ -123,10 +118,8 @@ const ProductsList = () => {
     return (
       <div className="products-list-container">
         <div className="loading-container">
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>Cargando productos...</p>
-          </div>
+          <div className="spinner"></div>
+          <p>Cargando productos...</p>
         </div>
       </div>
     );
@@ -142,7 +135,10 @@ const ProductsList = () => {
       <div className="products-grid">
         {products.map((product) => (
           <div key={product._id} className="product-card">
-            <div className="product-image-container" onClick={() => handleProductClick(product._id)}>
+            <div 
+              className="product-image-container"
+              onClick={() => handleProductClick(product._id)}
+            >
               <img
                 src={product.image || '/placeholder-product.png'}
                 alt={product.name}
@@ -154,20 +150,23 @@ const ProductsList = () => {
             </div>
 
             <div className="product-info">
-              <h3 className="product-name" onClick={() => handleProductClick(product._id)}>
+              <h3 
+                className="product-name" 
+                onClick={() => handleProductClick(product._id)}
+              >
                 {product.name}
               </h3>
-              
+
               <p className="product-description">
                 {product.description && product.description.length > 100
                   ? `${product.description.substring(0, 100)}...`
-                  : product.description
-                }
+                  : product.description}
               </p>
 
-              <div className="product-price">${product.price.toFixed(2)}</div>
+              <div className="product-price">
+                ${product.price.toFixed(2)}
+              </div>
 
-              {/* Selector de sabores en cada tarjeta */}
               {product.flavor && product.flavor.length > 0 && (
                 <div className="product-flavor-selector">
                   <label className="flavor-label-small">Sabor:</label>

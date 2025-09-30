@@ -1,86 +1,151 @@
-/* --- NAV COLOR --- */
+/* --- NAV MODERNO ESTILO LATITUDE --- */
 .inwood-navbar {
-  background: #0C133F;  /* color solicitado */
+  background: #ffffff;
   width: 100%;
-  padding: 10px 0;
-  position: fixed; 
+  border-bottom: 1px solid #e5e7eb;
+  position: fixed;
   top: 0;
   left: 0;
   z-index: 10000;
 }
 
 .inwood-container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 25px;
+  padding: 0 24px;
+  height: 64px;
 }
 
 /* --- Logo --- */
 .inwood-logo img {
-  height: 40px;
+  height: 100px; /* más grande */
   width: auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
+
 
 /* --- Menú central --- */
 .inwood-menu {
   display: flex;
   list-style: none;
-  gap: 30px;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+}
+
+.inwood-menu li {
   margin: 0;
   padding: 0;
 }
 
 .inwood-menu li a {
-  color: #ffffff; /* texto blanco para contraste */
+  color: #6b7280;
   text-decoration: none;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
+  transition: color 0.2s ease;
+  letter-spacing: -0.01em;
   position: relative;
-  padding-bottom: 4px;
+  padding-bottom: 0;
 }
 
-/* Activo con subrayado */
+.inwood-menu li a:hover {
+  color: #111827;
+}
+
+/* Activo */
 .inwood-menu li a.active {
-  font-weight: 600;
+  color: #111827;
+  font-weight: 500;
 }
 
-.inwood-menu li a.active::after,
-.inwood-menu li a:hover::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  height: 2px;
-  width: 100%;
-  background: #ffffff; /* subrayado blanco */
+/* Remover efectos de subrayado anteriores */
+.inwood-menu li a::after {
+  display: none;
+}
+
+.inwood-menu li a.active::after {
+  display: none;
 }
 
 /* --- Íconos derecha --- */
 .inwood-icons {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
 }
 
 .icon-btn {
   background: none;
-  border: none;     
-  outline: none;    
+  border: none;
+  outline: none;
   cursor: pointer;
-  color: #ffffff;
+  color: #6b7280;
   display: flex;
   align-items: center;
-  padding: 0;
-  transition: transform 0.2s ease;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .icon-btn:hover {
-  transform: scale(1.15);
+  color: #111827;
+  background: #f9fafb;
+  transform: none;
 }
 
+/* --- Botones de autenticación --- */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-login {
+  padding: 8px 20px;
+  background: #0C133F;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-login:hover {
+  background: #1a2354;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(12, 19, 63, 0.2);
+}
+
+.btn-register {
+  padding: 8px 20px;
+  background: #ffffff;
+  color: #0C133F;
+  font-size: 14px;
+  font-weight: 500;
+  border: 2px solid #0C133F;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-register:hover {
+  background: #0C133F;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(12, 19, 63, 0.2);
+}
 
 /* --- Dropdown perfil --- */
 .profile-wrapper {
@@ -89,28 +154,65 @@
 
 .profile-dropdown {
   position: absolute;
-  top: 36px;
+  top: calc(100% + 8px);
   right: 0;
   background: #fff;
-  border-radius: 6px;
+  border-radius: 8px;
   list-style: none;
-  padding: 8px 0;
+  padding: 8px;
   margin: 0;
-  min-width: 160px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 180px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+              0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  animation: slideDown 0.15s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .profile-dropdown li {
-  padding: 10px 16px;
+  padding: 0;
+  margin: 0;
 }
 
 .profile-dropdown li a {
-  color: #0C133F;
+  color: #374151;
   text-decoration: none;
   display: block;
   font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
 }
 
 .profile-dropdown li a:hover {
-  background: #f0f0f0;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .inwood-container {
+    padding: 0 16px;
+  }
+
+  .inwood-menu {
+    display: none;
+  }
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+  .inwood-logo img {
+    height: 40px;
+  }
 }
