@@ -1,23 +1,38 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { LogOut, Menu, X } from 'lucide-react';
+import { useAuthContext } from '../../context/useAuth'; 
+import toast from 'react-hot-toast';
 import './Nav.css';
  
 export default function Sidebar() {
-  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
- 
-  const handleLogout = () => {
-    navigate('/');
+  const { logout, API_URL } = useAuthContext();
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch(`${API_URL}/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (res.ok) {
+        await logout(); // limpia estado en React
+        toast.success('Sesión cerrada correctamente');
+        window.location.href = "http://localhost:5173"; 
+      } else {
+        const data = await res.json();
+        toast.error(data.message || 'Error al cerrar sesión');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Error al cerrar sesión');
+    }
   };
  
   return (
     <>
-      {/* Botón hamburguesa visible en mobile */}
-      <button
-        className="hamburger-btn"
-        onClick={() => setIsOpen(!isOpen)}
-      >
+      <button className="hamburger-btn" onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? <X size={28} /> : <Menu size={28} />}
       </button>
  
@@ -44,9 +59,7 @@ export default function Sidebar() {
         </div>
       </nav>
  
-      {/* Overlay para cerrar menú al tocar fuera */}
       {isOpen && <div className="sidebar-overlay" onClick={() => setIsOpen(false)} />}
     </>
   );
 }
- 

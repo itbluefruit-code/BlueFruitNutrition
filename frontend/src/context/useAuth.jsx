@@ -1,147 +1,119 @@
+// src/context/useAuth.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
 
-// Crear contexto
 const AuthContext = createContext();
 
-// Hook para usar contexto
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuthContext debe usarse dentro de AuthProvider");
+  if (!context)
+    throw new Error("useAuthContext debe usarse dentro de AuthProvider");
   return context;
 };
 
-// Provider principal
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // ✅ URL de tu API directamente
   const API_URL = "https://bluefruitnutrition-production.up.railway.app/api";
 
-  // Verificar sesión al cargar la app
+  // ✅ Verificar sesión al cargar
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(`${API_URL}/check-session`, {
+        const res = await fetch(`${API_URL}/session/auth/session`, {
           method: "GET",
-          credentials: "include", // <- cookies httpOnly
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
         });
 
-        if (!res.ok) throw new Error("No autenticado");
-
-        const data = await res.json();
-        setUser(data.user || data); // manejar ambos formatos
-        toast.success("Sesión activa detectada");
-      } catch {
-        // fallback a localStorage
-        const token = localStorage.getItem("token");
-        const userId = localStorage.getItem("userId");
-        if (token && userId) {
-          setUser({ id: userId, token, isAuthenticated: true });
-          toast.success("Sesión restaurada desde localStorage");
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+          setIsAuthenticated(true);
+          console.log("✅ Sesión activa:", data);
         } else {
           setUser(null);
+          setIsAuthenticated(false);
         }
+      } catch (err) {
+        console.error("Error verificando sesión:", err);
+        setUser(null);
+        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
     };
-
     checkAuth();
   }, []);
 
-  // Función de login
+  const checkSession = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/session/auth/session`, {
+        method: "GET",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data);
+        setIsAuthenticated(true);
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    } catch (err) {
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const login = async (email, password) => {
     try {
       const res = await fetch(`${API_URL}/login`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-        credentials: "include",
       });
-
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message || "Credenciales inválidas");
-
-      // Admin: redirigir a panel y enviar código
-      if (result.role === "admin") {
-        toast.success("Redirigiendo al panel de admin...");
-        // Aquí puedes manejar modal de código si quieres
-        setTimeout(() => {
-          window.location.href = "https://blue-fruit-nutrition-private.vercel.app"; // o producción
-        }, 1000);
-        return;
+      const data = await res.json();
+      if (res.ok && data.user) {
+        setUser(data.user);
+        setIsAuthenticated(true);
+        return { success: true, data };
+      } else {
+        throw new Error(data.message || "Error en login");
       }
-
-      // Usuario normal
-      const userData = result.user || result;
-      const token = result.token;
-
-      setUser({ ...userData, token, isAuthenticated: true });
-      setLoading(false);
-
-      // Guardar en localStorage
-      localStorage.setItem("token", token);
-      localStorage.setItem("userId", userData.id || userData._id || userData.userId);
-
-      toast.success("Sesión iniciada correctamente");
-      navigate("/");
-    } catch (error) {
-      toast.error(error.message);
+    } catch (err) {
+      return { success: false, error: err.message };
     }
   };
 
-  // Logout
   const logout = async () => {
     try {
       await fetch(`${API_URL}/logout`, {
         method: "POST",
         credentials: "include",
       });
-    } catch (error) {
-      console.error("Error cerrando sesión:", error);
+    } catch (err) {
+      console.error(err);
     } finally {
       setUser(null);
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      toast.success("Sesión cerrada");
-      navigate("/");
+      setIsAuthenticated(false);
     }
   };
 
-  // Revalidar sesión manualmente
-  const checkSession = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`${API_URL}/check-session`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (!res.ok) throw new Error("No autenticado");
-
-      const data = await res.json();
-      setUser(data.user || data);
-      toast.success("Sesión confirmada");
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const value = {
-    user,
-    login,
-    logout,
-    checkSession,
-    loading,
-    isAuthenticated: !!user?.isAuthenticated,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{ user, loading, isAuthenticated, login, logout, checkSession, API_URL }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export default useAuthContext;
+export default AuthContext;

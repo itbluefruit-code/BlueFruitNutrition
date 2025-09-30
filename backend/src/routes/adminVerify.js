@@ -4,7 +4,7 @@ import { authenticate, requireAdmin } from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.post("/send-code", authenticate, adminVerificationController.sendCode);
-router.post("/verify-code", authenticate,  adminVerificationController.verifyCode);
+router.post("/send-code",  adminVerificationController.sendCode);
+router.post("/verify-code",  adminVerificationController.verifyCode);
 
 export default router;
