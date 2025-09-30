@@ -68,7 +68,7 @@ const Nav = () => {
               <FiShoppingCart size={24} />
             </Link>
           )}
-
+  
           {isAuthenticated ? (
             <Link to="/perfil" className="icon-btn" aria-label="Perfil">
               <FiUser size={24} />

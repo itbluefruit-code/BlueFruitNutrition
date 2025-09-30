@@ -24,7 +24,6 @@ const ProductsReview = () => {
     fetch(`http://localhost:4000/api/products/${id}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
-        // Procesar sabores correctamente
         let flavorsArray = [];
         if (data.flavor) {
           try {
@@ -57,7 +56,14 @@ const ProductsReview = () => {
   const handleQuantityChange = (amount) => setQuantity(prev => Math.max(1, prev + amount));
   const handleFlavorChange = (e) => setSelectedFlavor(e.target.value);
 
+  // 🚨 Bloqueamos si no hay login
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      toast.error('Debes iniciar sesión para agregar productos al carrito');
+      navigate('/login');
+      return;
+    }
+
     if (!product) return;
     if (product.flavor.length > 0 && !selectedFlavor) {
       toast.error('Selecciona un sabor');
@@ -85,6 +91,7 @@ const ProductsReview = () => {
   };
 
   const handleBackToProducts = () => navigate('/product');
+
   const handleAddReview = () => {
     if (!isAuthenticated) {
       toast.error('Debes iniciar sesión para agregar reseña');
@@ -127,7 +134,11 @@ const ProductsReview = () => {
             <button onClick={() => handleQuantityChange(1)}>+</button>
           </div>
 
-          <button onClick={handleAddToCart}>Agregar al carrito</button>
+          {/* Botón protegido por login */}
+          <button onClick={handleAddToCart} disabled={!isAuthenticated}>
+            {isAuthenticated ? "Agregar al carrito" : "Inicia sesión para comprar"}
+          </button>
+
           <Link to="/personalizar">Personalizar</Link>
 
           <p>{product.description}</p>

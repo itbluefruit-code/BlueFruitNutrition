@@ -1,37 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Suscripciones.css';
 
 const Beneficios = () => {
-  const handleComprar = async () => {
-    try {
-      // 🔹 Aquí obtienes el email del usuario (ajusta según tu sistema de login)
-      const userEmail = localStorage.getItem("userEmail") || "cliente@example.com";
+  const navigate = useNavigate();
 
-     const nuevaSuscripcion = {
-      suscripcionId: `SUB-${Date.now()}`,      // String ✔️
-      fechaInicio: new Date(),                // Date ✔️ (objeto Date real)
-      usuario: userEmail,                     // String ✔️
-      precio: 19.99,                           // Number ✔️ (sin "$")
-      plan: "Único",                           // String ✔️
-      estado: "Activo"                         // String ✔️ (opcional pero válido)
-    };
-
-
-      const res = await fetch("https://bluefruitnutrition-production.up.railway.app/api/subscriptions/public", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(nuevaSuscripcion)
-      });
-
-      if (res.ok) {
-        alert("✅ Suscripción completada");
-      } else {
-        const data = await res.json();
-        alert("❌ Error: " + data.message);
-      }
-    } catch (error) {
-      alert("⚠️ No se pudo completar la suscripción");
-    }
+  // 🔹 Redirige a la pantalla de pago
+  const handleComprar = () => {
+    navigate('/pay');
   };
 
   return (
@@ -98,9 +74,7 @@ const Beneficios = () => {
                 <div className="product-image">
                   <img src="./public/guineyo.png" alt="Reppo Banano" />
                 </div>
-                <div className="product-price">
-                  $19.99
-                </div>
+                <div className="product-price">$19.99</div>
               </div>
             </div>
 
