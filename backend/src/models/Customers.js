@@ -2,15 +2,8 @@ import { Schema, model } from "mongoose";
 
 const customersSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
-
-    lastName: {
-      type: String,
-      required: true,
-    },
+    name: { type: String, required: true },
+    lastName: { type: String, required: true },
 
     email: {
       type: String,
@@ -29,7 +22,7 @@ const customersSchema = new Schema(
       maxlength: 100,
       validate: {
         validator: function (value) {
-          return /[!@#$%^&*(),.?":{}|<>]/.test(value); // al menos un carácter especial
+          return /[!@#$%^&*(),.?":{}|<>]/.test(value);
         },
         message: "La contraseña debe contener al menos un carácter especial.",
       },
@@ -38,16 +31,11 @@ const customersSchema = new Schema(
     phone: {
       type: String,
       required: false,
-      unique: false,
       match: [/^[0-9]{8}$/, "El número de teléfono tiene que ser válido"],
     },
 
-    weight: {
-      type: Number, // Peso en kg
-      required: false,
-      min: 10, // Mínimo 10 kg
-      max: 300, // Máximo 300 kg
-    },
+    weight: { type: Number, min: 10, max: 300, default: null },
+    height: { type: Number, min: 100, max: 300, default: null },
 
     dateBirth: {
       type: Date,
@@ -66,54 +54,24 @@ const customersSchema = new Schema(
       },
     },
 
-    height: {
-      type: Number, // Altura en cm
-      required: false,
-      min: 100,
-      max: 300,
-    },
+    address: { type: String, required: false, default: null },
+    gender: { type: String, required: false, default: null },
 
-    address: {
-      type: String,
-      required: true,
-    },
+    idSports: { type: Schema.Types.ObjectId, ref: "Sport", required: false, default: null },
 
-    gender: {
-      type: String,
-      required: true,
-    },
+    // Verificación de correo
+    verified: { type: Boolean, default: false },
+    verificationToken: { type: String, required: false },
 
-    // Referencia a tabla de deportes
-    idSports: {
-      type: Schema.Types.ObjectId,
-      ref: "Sport",
-      required: false,
-    },
-
-    // ✅ Verificación de correo
-    verified: {
-      type: Boolean,
-      default: false,
-    },
-
-    verificationToken: {
-      type: String,
-      required: false,
-    },
-
-    // ✅ Expiración del documento si no verifica en 2 horas
     expireAt: {
       type: Date,
       default: function () {
-        return new Date(Date.now() + 2 * 60 * 60 * 1000); // 2 horas
+        return new Date(Date.now() + 2 * 60 * 60 * 1000);
       },
       index: { expires: 0 },
     },
   },
-  {
-    timestamps: true,
-    strict: false,
-  }
+  { timestamps: true, strict: false }
 );
 
 export default model("Customer", customersSchema);

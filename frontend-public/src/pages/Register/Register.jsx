@@ -30,23 +30,26 @@ function Registro() {
       let payload = {};
       let endpoint = "";
 
-      if (tipoUsuario === "customer") {
-        endpoint =
-          "https://bluefruitnutrition-production.up.railway.app/api/registerCustomers";
-        payload = {
-          name: data.name,
-          lastName: data.lastName,
-          email: data.email,
-          password: data.password,
-          phone: data.phone,
-          dateBirth: data.dateBirth,
-          // Campos que el backend espera pero que dejamos en null
-          address: null,
-          gender: null,
-          weight: null,
-          height: null,
-          sportId: null,
-        };
+       if (tipoUsuario === "customer") {
+  endpoint =
+    "https://bluefruitnutrition-production.up.railway.app/api/registerCustomers";
+  payload = {
+    name: data.name,
+    lastName: data.lastName,
+    email: data.email,
+    password: data.password,
+    phone: data.phone,
+    dateBirth: data.dateBirth,
+    // Opcionales como null
+    address: null,
+    gender: null,
+    weight: null,
+    height: null,
+    idSports: null,   // 🔹 CORREGIDO
+    // Campos obligatorios del backend
+    status: "active",
+    isVerified: false,
+  };
       } else if (tipoUsuario === "distributor") {
         endpoint =
           "https://bluefruitnutrition-production.up.railway.app/api/registerDistributors";
@@ -56,8 +59,11 @@ function Registro() {
           password: data.password,
           phone: data.phone,
           NIT: data.NIT,
-          // Campos opcionales
+          // Opcionales como null
           address: null,
+          // Campos obligatorios del backend
+          status: "active",
+          isVerified: false,
         };
       }
 
