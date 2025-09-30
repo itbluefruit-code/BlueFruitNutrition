@@ -1,104 +1,143 @@
 import React, { useState } from 'react';
-import { Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const ReviewForm = ({ productId, loadReviews }) => {
-  const [newReview, setNewReview] = useState({
-    rating: 5,
-    comment: '',
-  });
-  const [showReviewForm, setShowReviewForm] = useState(false);
+const ReviewForm = ({ productId, onClose, onReviewAdded }) => {
+  const [rating, setRating] = useState(0);
+  const [hoveredRating, setHoveredRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRatingChange = (rating) => {
-    setNewReview({ ...newReview, rating });
-  };
-
-  const handleSubmitReview = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!newReview.comment.trim()) {
-      toast('Por favor escribe un comentario.', { icon: '⚠️' });
+    // Validaciones
+    if (rating === 0) {
+      toast.error('Por favor selecciona una calificación');
       return;
     }
 
-    const reviewToSend = {
-      comment: newReview.comment,
-      rating: newReview.rating,
-      idProduct: productId,
-    };
+    if (!comment.trim()) {
+      toast.error('Por favor escribe un comentario');
+      return;
+    }
+
+    if (comment.trim().length < 10) {
+      toast.error('El comentario debe tener al menos 10 caracteres');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
-      const response = await fetch(`http://localhost:4000/api/reviews`, {
+      const response = await fetch('http://localhost:4000/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(reviewToSend),
+        credentials: 'include', // Importante para enviar las cookies de autenticación
+        body: JSON.stringify({
+          comment: comment.trim(),
+          rating: rating,
+          idProduct: productId,
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         toast.success('¡Reseña agregada exitosamente!');
-        setNewReview({ rating: 5, comment: '' });
-        setShowReviewForm(false);
-        loadReviews();
+        setRating(0);
+        setComment('');
+        
+        // Llamar callbacks
+        if (onReviewAdded) onReviewAdded();
+        if (onClose) onClose();
       } else {
-        toast.error(data.message || 'Error al guardar reseña');
+        toast.error(data.message || 'Error al guardar la reseña');
       }
-    } catch (err) {
-      console.error('Error:', err);
-      toast.error('Error al enviar la reseña');
+    } catch (error) {
+      console.error('Error al enviar reseña:', error);
+      toast.error('Error de conexión. Por favor intenta nuevamente.');
+    } finally {
+      setIsSubmitting(false);
     }
+  };
+
+  const handleCancel = () => {
+    setRating(0);
+    setComment('');
+    if (onClose) onClose();
   };
 
   return (
     <div className="review-form-container">
-      <button
-        className="toggle-review-form-btn"
-        onClick={() => setShowReviewForm(!showReviewForm)}
-      >
-        {showReviewForm ? 'Cancelar' : 'Agregar Reseña'}
-      </button>
-
-      {showReviewForm && (
-        <form onSubmit={handleSubmitReview} className="review-form">
-          {/* Calificación de estrellas */}
-          <div className="rating-section">
-            <label htmlFor="rating">Calificación</label>
-            <div className="stars-container">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  size={24}
-                  className={`star ${i < newReview.rating ? 'filled' : 'empty'}`}
-                  onClick={() => handleRatingChange(i + 1)}
-                />
-              ))}
-            </div>
+      <form onSubmit={handleSubmit} className="review-form">
+        
+        {/* Rating de estrellas */}
+        <div className="form-group">
+          <label>Calificación *</label>
+          <div className="rating-input">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                className={`star interactive ${
+                  star <= (hoveredRating || rating) ? 'filled' : ''
+                }`}
+                onClick={() => setRating(star)}
+                onMouseEnter={() => setHoveredRating(star)}
+                onMouseLeave={() => setHoveredRating(0)}
+              >
+                ★
+              </span>
+            ))}
+            {rating > 0 && (
+              <span className="rating-text">
+                {rating === 1 && 'Muy malo'}
+                {rating === 2 && 'Malo'}
+                {rating === 3 && 'Regular'}
+                {rating === 4 && 'Bueno'}
+                {rating === 5 && 'Excelente'}
+              </span>
+            )}
           </div>
+        </div>
 
-          {/* Comentario */}
-          <div className="comment-section">
-            <label htmlFor="comment">Comentario</label>
-            <textarea
-              id="comment"
-              value={newReview.comment}
-              onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-              placeholder="Escribe tu reseña aquí..."
-              rows="4"
-            />
+        {/* Comentario */}
+        <div className="form-group">
+          <label htmlFor="comment">Tu reseña *</label>
+          <textarea
+            id="comment"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Comparte tu experiencia con este producto..."
+            rows="5"
+            maxLength="500"
+            disabled={isSubmitting}
+          />
+          <div className="character-count">
+            {comment.length}/500 caracteres
           </div>
+        </div>
 
-          {/* Botones */}
-          <div className="review-form-buttons">
-            <button type="submit" className="submit-btn">Enviar</button>
-            <button type="button" className="cancel-btn" onClick={() => setShowReviewForm(false)}>
-              Cancelar
-            </button>
-          </div>
-        </form>
-      )}
+        {/* Botones */}
+        <div className="form-buttons">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="cancel-review-btn"
+            disabled={isSubmitting}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className="submit-review-btn"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Enviando...' : 'Publicar Reseña'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
