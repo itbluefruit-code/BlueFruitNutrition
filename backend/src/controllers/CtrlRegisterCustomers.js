@@ -42,13 +42,12 @@ registerCustomersController.register = async (req, res) => {
     const tokenCode = jsonwebtoken.sign({ email, verificationCode }, config.JWT.secret, { expiresIn: "2h" });
 
     // Aquí agregamos configuración correcta a la cookie
-    const isProduction = process.env.NODE_ENV === "production";
-    res.cookie("verificationToken", tokenCode, {
-      httpOnly: true,
-      sameSite: "Lax",
-      secure: isProduction,
-      maxAge: 2 * 60 * 60 * 1000, // 2 horas en ms
-    });
+res.cookie("verificationToken", tokenCode, {
+  httpOnly: true,
+  sameSite: "None",
+  secure: true, // 👈 debe estar siempre en true si sameSite es None
+  maxAge: 2 * 60 * 60 * 1000,
+});
 
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
