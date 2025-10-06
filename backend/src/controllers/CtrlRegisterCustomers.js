@@ -1,5 +1,6 @@
 import jsonwebtoken from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import fetch from "node-fetch";
 
 import customersModel from "../models/Customers.js";
@@ -40,14 +41,13 @@ registerCustomersController.register = async (req, res) => {
     const verificationCode = Math.floor(10000 + Math.random() * 90000).toString();
     const tokenCode = jsonwebtoken.sign({ email, verificationCode }, config.JWT.secret, { expiresIn: "2h" });
 
-    // Configurar cookie según entorno
+    // Aquí agregamos configuración correcta a la cookie
     const isProduction = process.env.NODE_ENV === "production";
-
     res.cookie("verificationToken", tokenCode, {
       httpOnly: true,
       sameSite: "Lax",
       secure: isProduction,
-      maxAge: 2 * 60 * 60 * 1000, // 2 horas
+      maxAge: 2 * 60 * 60 * 1000, // 2 horas en ms
     });
 
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
@@ -76,6 +76,30 @@ registerCustomersController.register = async (req, res) => {
   } catch (error) {
     console.error("Error en registerCustomersController.register:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+registerCustomersController.verificationCode = async (req, res) => {
+  const { requireCode } = req.body;
+  const token = req.cookies.verificationToken;
+
+  try {
+    const decoded = jsonwebtoken.verify(token, config.JWT.secret);
+    const { email, verificationCode: storedCode } = decoded;
+
+    if (requireCode !== storedCode) return res.status(422).json({ message: "Invalid code" });
+
+    const customer = await customersModel.findOne({ email });
+    if (!customer) return res.status(404).json({ message: "Cliente no encontrado para verificación" });
+
+    customer.isVerified = true;
+    await customer.save();
+
+    res.clearCookie("verificationToken");
+    res.status(200).json({ message: "Email verified successfully" });
+  } catch (error) {
+    console.error("Error en verificationCode:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
