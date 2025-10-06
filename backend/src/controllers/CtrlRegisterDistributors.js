@@ -1,17 +1,15 @@
-import jsonwebtoken from "jsonwebtoken"; // token
-import bcrypt from "bcryptjs"; // encriptar
-import crypto from "crypto"; // código aleatorio
+import jsonwebtoken from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import fetch from "node-fetch";
 
 import distributorModel from "../models/Distributors.js";
 import customersModel from "../models/Customers.js";
 import { config } from "../config.js";
 
-import fetch from "node-fetch"; 
 const apiKey = config.apiKey.api_key;
 
 const registerDistributorController = {};
 
-// REGISTRO *************************************************************************************
 registerDistributorController.register = async (req, res) => {
   const { companyName, email, password, address, phone, status, NIT, isVerified } = req.body;
 
@@ -24,14 +22,14 @@ registerDistributorController.register = async (req, res) => {
     const existingDistributor = await distributorModel.findOne({ email });
     if (existingDistributor) {
       console.log("Intento de registro con email ya registrado como distribuidor:", email);
-      return res.status(200).json({ message: "Distributor already exist" });
+      return res.status(400).json({ message: "Distributor already exist" });
     }
 
     // Verificar si el email ya existe como cliente
     const existingCustomer = await customersModel.findOne({ email });
     if (existingCustomer) {
       console.log("Intento de registro con email ya registrado como cliente:", email);
-      return res.status(200).json({ message: "Ya existe un cliente registrado con este correo" });
+      return res.status(400).json({ message: "Ya existe un cliente registrado con este correo" });
     }
 
     // Encriptar la contraseña
@@ -60,17 +58,22 @@ registerDistributorController.register = async (req, res) => {
       { expiresIn: "2h" }
     );
 
-    // Guardar en cookie
+    // Configurar cookie según entorno
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("verificationToken", tokenCode, {
       httpOnly: true,
+      sameSite: "Lax",
+      secure: isProduction,
+      maxAge: 2 * 60 * 60 * 1000, // 2 horas
     });
 
-    // ENVIAR CORREO CON BREVO API ----------------------------------------------------------------
+    // ENVIAR CORREO CON BREVO API
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
       method: "POST",
       headers: {
         accept: "application/json",
-        "api-key": apiKey, 
+        "api-key": apiKey,
         "content-type": "application/json",
       },
       body: JSON.stringify({
@@ -91,12 +94,12 @@ registerDistributorController.register = async (req, res) => {
     res.status(201).json({ message: "Distributor registered, please verify your email with the code" });
 
   } catch (error) {
-    console.log("error" + error);
+    console.log("error", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-// VERIFICAR CÓDIGO ****************************************************************************
+// VERIFICAR CÓDIGO
 registerDistributorController.verificationCode = async (req, res) => {
   const { requireCode } = req.body;
   const token = req.cookies.verificationToken;
@@ -118,9 +121,9 @@ registerDistributorController.verificationCode = async (req, res) => {
     await distributor.save();
 
     res.clearCookie("verificationToken");
-    res.status(200).json({ message: "Email verified successfuly" });
+    res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
-    console.log("error: " + error);
+    console.log("error:", error);
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
