@@ -61,12 +61,13 @@ registerDistributorController.register = async (req, res) => {
     // Configurar cookie según entorno
     const isProduction = process.env.NODE_ENV === "production";
 
-    res.cookie("verificationToken", tokenCode, {
-      httpOnly: true,
-      sameSite: "Lax",
-      secure: isProduction,
-      maxAge: 2 * 60 * 60 * 1000, // 2 horas
-    });
+res.cookie("verificationToken", tokenCode, {
+  httpOnly: true,
+  sameSite: "None",  // ✅ Correcto para frontend y backend en dominios distintos
+  secure: true,      // ✅ Obligatorio si usas sameSite: "None"
+  maxAge: 2 * 60 * 60 * 1000,
+});
+
 
     // ENVIAR CORREO CON BREVO API
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
