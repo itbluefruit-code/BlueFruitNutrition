@@ -83,24 +83,46 @@ registerCustomersController.verificationCode = async (req, res) => {
   const { requireCode } = req.body;
   const token = req.cookies.verificationToken;
 
+  console.log("🔍 verificationCode endpoint llamado");
+  console.log("requireCode:", requireCode);
+  console.log("token:", token);
+
+  if (!token) {
+    console.warn("❌ No hay token en cookie");
+    return res.status(401).json({ message: "No verification token found" });
+  }
+
   try {
     const decoded = jsonwebtoken.verify(token, config.JWT.secret);
-    const { email, verificationCode: storedCode } = decoded;
+    console.log("decoded:", decoded);
 
-    if (requireCode !== storedCode) return res.status(422).json({ message: "Invalid code" });
+    const { email, verificationCode: storedCode } = decoded;
+    console.log("email del token:", email, "storedCode:", storedCode);
+
+    if (requireCode !== storedCode) {
+      console.warn("❌ Código no coincide", requireCode, storedCode);
+      return res.status(422).json({ message: "Invalid code" });
+    }
 
     const customer = await customersModel.findOne({ email });
-    if (!customer) return res.status(404).json({ message: "Cliente no encontrado para verificación" });
+    console.log("customer encontrado:", customer);
+
+    if (!customer) {
+      console.warn("❌ Cliente no encontrado para verificación");
+      return res.status(404).json({ message: "Cliente no encontrado para verificación" });
+    }
 
     customer.isVerified = true;
     await customer.save();
+    console.log("🎉 Cliente verificado exitosamente");
 
     res.clearCookie("verificationToken");
-    res.status(200).json({ message: "Email verified successfully" });
+    return res.status(200).json({ message: "Email verified successfully" });
   } catch (error) {
-    console.error("Error en verificationCode:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("💥 Error en verificationCode:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
 
 export default registerCustomersController;
