@@ -72,7 +72,7 @@ res.cookie("verificationToken", tokenCode, {
 
     // ENVIAR CORREO CON BREVO API
    //enviar correo-------------------------------------------------------------------------------------------------------
-const htmlContent = HTMLVerificationEmail(name, verificationCode);
+const htmlContent = HTMLVerificationEmail(companyName, verificationCode);
 
 await sendMail(
   email,
