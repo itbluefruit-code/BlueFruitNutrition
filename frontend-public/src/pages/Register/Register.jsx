@@ -55,6 +55,7 @@ function Registro() {
           phone: data.phone || "00000000",
           NIT: data.NIT,
           address: data.address || "No especificado",
+          verified: data.verified || false,
   
         };
       }

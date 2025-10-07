@@ -32,6 +32,7 @@ registerCustomersController.register = async (req, res) => {
 
     const passwordHash = await bcrypt.hash(password, 10);
 
+    //INSERT CUSTOMER--------------------------------------------------------------------------------------------------------
     const newCustomer = new customersModel({
       name, lastName, email, password: passwordHash, phone, weight, dateBirth, height, address, gender, idSports, verified
     });

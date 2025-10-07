@@ -70,6 +70,9 @@ password: {
          default: false 
         },
 
+            verificationToken: { type: String, required: false },
+
+
     //Expiración automática si no se verifica
     expireAt: {
         type: Date,
