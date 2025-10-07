@@ -65,10 +65,13 @@ password: {
     },
 
             // Verificación
-    isVerified: { 
+    verified: { 
         type: Boolean,
          default: false 
         },
+
+            verificationToken: { type: String, required: false },
+
 
     //Expiración automática si no se verifica
     expireAt: {

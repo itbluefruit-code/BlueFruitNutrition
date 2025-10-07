@@ -44,7 +44,7 @@ function Registro() {
           weight: data.weight || 0,
           height: data.height || 0,
           idSports: data.idSports || null,
-          isVerified: false,
+      
         };
       } else if (tipoUsuario === "distributor") {
         endpoint = "https://bluefruitnutrition-production.up.railway.app/api/registerDistributors";
@@ -55,7 +55,8 @@ function Registro() {
           phone: data.phone || "00000000",
           NIT: data.NIT,
           address: data.address || "No especificado",
-          isVerified: false,
+          verified: data.verified || false,
+  
         };
       }
 
@@ -154,7 +155,7 @@ console.log("Verification result:", result);
         </div>
 
         <div className="registro-right">
-          <h1 className="welcome-title">Welcome!</h1>
+          <h1 className="welcome-title">Bienvenido!</h1>
           <h2 className="tipo-cuenta-titulo">Selecciona tu tipo de cuenta</h2>
 
           <div className="btn-switch-group" role="tablist" aria-label="Tipo de cuenta">
@@ -191,6 +192,7 @@ console.log("Verification result:", result);
           <p className="tipo-usuario-texto">
             Registrarse como {tipoUsuario === "customer" ? "Cliente" : "Distribuidor"}
           </p>
+          <br />
 
           <form className="registro-form" onSubmit={handleSubmit(onSubmit)}>
             {tipoUsuario === "customer" ? (

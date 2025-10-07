@@ -198,6 +198,11 @@ const Login = () => {
               <a href="/enviar-codigo" className="forgot-password-link">
                 ¿Olvidaste tu contraseña?
               </a>
+              <br />
+              <br />
+
+                            <a href="/enviar-codigo" className="forgot-password-link">
+                ¿No tienes una cuenta? <u>Registrate</u>              </a>
             </div>
           </form>
         </div>
