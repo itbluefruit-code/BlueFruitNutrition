@@ -76,12 +76,10 @@ password: {
     //Expiración automática si no se verifica
     expireAt: {
         type: Date,
-        default: function () {
-            return new Date(Date.now() + 2*60*60*1000); // 2 HORAS
-        },
-        index: { expires: 0 } 
-    }
+        default: () => new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 horas desde creación
 
+      }
+      
     },
     
     {

@@ -22,11 +22,12 @@ const customersSchema = new Schema(
     verificationToken: { type: String, required: false },
     expireAt: {
       type: Date,
-      default: () => new Date(Date.now() + 2 * 60 * 60 * 1000),
-      index: { expires: 0 },
+      default: () => new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 horas desde creación
     },
   },
   { timestamps: true }
 );
+
+
 
 export default model("Customer", customersSchema);
