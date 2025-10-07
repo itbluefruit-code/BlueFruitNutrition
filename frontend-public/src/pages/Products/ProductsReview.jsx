@@ -66,7 +66,7 @@ const ProductsReview = () => {
           .map(f => String(f).trim())
           .filter(f => f.length > 0);
         
-        console.log('🍎 Sabores procesados:', flavorsArray);
+        console.log('Sabores procesados:', flavorsArray);
 
         setProduct({ ...data, flavor: flavorsArray });
 
@@ -78,7 +78,7 @@ const ProductsReview = () => {
         setLoading(false);
       })
       .catch(err => {
-        console.error('❌ Error al cargar el producto:', err);
+        console.error(' Error al cargar el producto:', err);
         setProduct(null);
         setLoading(false);
       });
@@ -102,7 +102,7 @@ const ProductsReview = () => {
 
   const handleFlavorChange = (flavor) => {
     setSelectedFlavor(flavor);
-    console.log('🔄 Sabor cambiado a:', flavor);
+    console.log(' Sabor cambiado a:', flavor);
   };
 
   const handleFlavorSelectChange = (e) => {
@@ -117,7 +117,7 @@ const ProductsReview = () => {
       return;
     }
 
-    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const carrito = JSON.parse(localStorage.getItem("/carrito")) || [];
     const productId = product._id || product.id;
     const uniqueId = selectedFlavor ? `${productId}_${selectedFlavor}` : productId;
 
@@ -192,7 +192,7 @@ const ProductsReview = () => {
       <div className="products-review-wrapper">
         <div className="product-detail-screen">
           <div className="product-not-found">
-            <h2>❌ Producto no encontrado</h2>
+            <h2>Producto no encontrado</h2>
             <p>El producto que buscas no está disponible</p>
             <button onClick={handleBackToProducts} className="back-to-products-btn">
               Volver a Productos
