@@ -12,7 +12,7 @@ const registerCustomersController = {};
 
 registerCustomersController.register = async (req, res) => {
   try {
-    let { name, lastName, email, password, phone, weight, dateBirth, height, address, gender, idSports, isVerified } = req.body;
+    let { name, lastName, email, password, phone, weight, dateBirth, height, address, gender, idSports, verified } = req.body;
 
     if (!name || !lastName || !email || !password || !dateBirth || !address || !gender) {
       return res.status(400).json({ message: "Ingrese campos obligatorios" });
@@ -33,7 +33,7 @@ registerCustomersController.register = async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
 
     const newCustomer = new customersModel({
-      name, lastName, email, password: passwordHash, phone, weight, dateBirth, height, address, gender, idSports, isVerified
+      name, lastName, email, password: passwordHash, phone, weight, dateBirth, height, address, gender, idSports, verified
     });
 
     await newCustomer.save();
@@ -111,7 +111,7 @@ registerCustomersController.verificationCode = async (req, res) => {
       return res.status(404).json({ message: "Cliente no encontrado para verificación" });
     }
 
-    customer.isVerified = true;
+    customer.verified = true;
     await customer.save();
     console.log("🎉 Cliente verificado exitosamente");
 

@@ -17,13 +17,13 @@ distributorsController.getDistributors = async (req, res) => {
 //INSERT*******************************************************************
 distributorsController.postDistributors = async (req, res) => {
     try {
-        const { companyName, email, password, address, phone, status, NIT, isVerified } = req.body;
+        const { companyName, email, password, address, phone, status, NIT, verified } = req.body;
         //validar campos
         if(!companyName || !email || !password || !phone || !address || !status || !NIT){
               return res.status(400).json({ message: 'Faltan campos obligatorios' });
 
         }
-        const newDistributor = new distributosModel({ companyName, email, password, address, phone, status, NIT, isVerified })
+        const newDistributor = new distributosModel({ companyName, email, password, address, phone, status, NIT, verified })
         await newDistributor.save();
 
         res.json({ message: "Distributor saved" })
@@ -55,10 +55,10 @@ distributorsController.deleteDistributors = async (req, res) => {
 //UPDATE*******************************************************************
 distributorsController.putDistributors = async (req, res) => {
     try {
-        const { companyName, email, password, address, phone, status, NIT, isVerified } = req.body;
+        const { companyName, email, password, address, phone, status, NIT, verified } = req.body;
         const updateDistributor = await distributosModel.findByIdAndUpdate(req.params.id, {
             companyName, email, password,
-            address, phone, status, NIT, isVerified
+            address, phone, status, NIT, verified
         }, { new: true })
         res.status(200).json({ message: "distrubutor updated" })
         res.json({ message: "Distributor updated" })

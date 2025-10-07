@@ -246,7 +246,7 @@ const MAX_FILE_SIZE = 5242880;
 
 ### 🗄️ Base de Datos (MongoDB)
 - **Colecciones**: PascalCase (Products, Customers, Orders, Distributors)
-- **Campos**: camelCase (name, email, createdAt, isVerified)
+- **Campos**: camelCase (name, email, createdAt, verified)
 - **Índices**: snake_case (idx_email, idx_created_at)
 
 ## 🚀 Instalación y Configuración
@@ -504,7 +504,7 @@ const MAX_FILE_SIZE = 5242880;
 
 ### 🗄️ Base de Datos (MongoDB)
 - **Colecciones**: PascalCase (Products, Customers, Orders, Distributors)
-- **Campos**: camelCase (name, email, createdAt, isVerified)
+- **Campos**: camelCase (name, email, createdAt, verified)
 - **Índices**: snake_case (idx_email, idx_created_at)
 
 ## 🚀 Instalación y Configuración

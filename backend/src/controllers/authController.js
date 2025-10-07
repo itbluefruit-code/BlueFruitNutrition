@@ -15,7 +15,7 @@ export const register = async (req, res) => {
     // Encriptar la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear el usuario con isVerified = false
+    // Crear el usuario con verified = false
     const newCustomer = await customersModel.create({
       name,
       lastName,
@@ -28,7 +28,7 @@ export const register = async (req, res) => {
       address,
       gender,
       idSports,
-      isVerified: false,
+      verified: false,
     });
 
     // Generar token
@@ -86,7 +86,7 @@ export const verifyEmail = async (req, res) => {
     }
 
     // Actualizar el estado del usuario
-    await customersModel.findByIdAndUpdate(record.customerId, { isVerified: true });
+    await customersModel.findByIdAndUpdate(record.customerId, { verified: true });
     await EmailVerificationToken.deleteOne({ _id: record._id });
 
     res.send(`

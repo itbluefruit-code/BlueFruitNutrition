@@ -65,7 +65,7 @@ password: {
     },
 
             // Verificación
-    isVerified: { 
+    verified: { 
         type: Boolean,
          default: false 
         },

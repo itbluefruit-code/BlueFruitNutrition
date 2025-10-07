@@ -11,7 +11,7 @@ const apiKey = config.apiKey.api_key;
 const registerDistributorController = {};
 
 registerDistributorController.register = async (req, res) => {
-  const { companyName, email, password, address, phone, status, NIT, isVerified } = req.body;
+  const { companyName, email, password, address, phone, status, NIT, verified } = req.body;
 
   if (!companyName || !email || !password || !address || !phone || !NIT) {
     return res.status(400).json({ message: "Ingrese campos obligatorios" });
@@ -43,7 +43,7 @@ registerDistributorController.register = async (req, res) => {
       phone,
       status,
       NIT,
-      isVerified,
+      verified,
     });
 
     await newDistributor.save();
@@ -118,7 +118,7 @@ registerDistributorController.verificationCode = async (req, res) => {
       return res.status(404).json({ message: "Distribuidor no encontrado para verificación" });
     }
 
-    distributor.isVerified = true;
+    distributor.verified = true;
     await distributor.save();
 
     res.clearCookie("verificationToken");

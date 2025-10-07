@@ -44,7 +44,7 @@ function Registro() {
           weight: data.weight || 0,
           height: data.height || 0,
           idSports: data.idSports || null,
-          isVerified: false,
+      
         };
       } else if (tipoUsuario === "distributor") {
         endpoint = "https://bluefruitnutrition-production.up.railway.app/api/registerDistributors";
@@ -55,7 +55,7 @@ function Registro() {
           phone: data.phone || "00000000",
           NIT: data.NIT,
           address: data.address || "No especificado",
-          isVerified: false,
+  
         };
       }
 
