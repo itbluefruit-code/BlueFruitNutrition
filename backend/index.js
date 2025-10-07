@@ -3,8 +3,8 @@ import "./database.js";
 import { config } from "./src/config.js";
 
 import cron from "node-cron";
-import { deleteUnverifiedCustomers } from "../backend/src/jobs/deleteUnverifiedClients.js";
-import { deleteUnverifiedDistributors } from "../backend/src/jobs/deleteUnverifiedDistributors.js";
+import { deleteUnverifiedCustomers } from "./src/jobs/deleteUnverifiedCustomers.js";
+import { deleteUnverifiedDistributors } from "./src/jobs/deleteUnverifiedDistributors.js";
 
 
 // Función que ejecuta el servidor
