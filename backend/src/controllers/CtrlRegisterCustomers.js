@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import fetch from "node-fetch";
 
+import { sendMail, HTMLVerificationEmail } from "../utils/emailVerification.js"; // enviar correos.
 import customersModel from "../models/Customers.js";
 import distributorModel from "../models/Distributors.js";
 import { config } from "../config.js";
@@ -50,26 +51,23 @@ res.cookie("verificationToken", tokenCode, {
   maxAge: 2 * 60 * 60 * 1000,
 });
 
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        accept: "application/json",
-        "api-key": apiKey,
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        sender: { name: "Blue Fruit Nutrition", email: config.email.email_user },
-        to: [{ email, name }],
-        subject: "Verificar Correo",
-        htmlContent: `<p>Para verificar su correo utiliza el siguiente código: <b>${verificationCode}</b></p><p>Este código expira en 2 horas.</p>`
-      }),
-    });
+//enviar correo-------------------------------------------------------------------------------------------------------
+const htmlContent = HTMLVerificationEmail(name, verificationCode);
 
+await sendMail(
+  email,
+  "Verifica tu correo",
+  `Tu código de verificación es: ${verificationCode}`,
+  htmlContent
+);
+
+/*
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("Error Brevo:", errorData);
       return res.status(400).json({ message: "Error enviando el correo" });
     }
+    */
 
     res.status(201).json({ message: "Customer registered, please verify your email with the code" });
 
