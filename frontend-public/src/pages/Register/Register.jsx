@@ -44,7 +44,7 @@ function Registro() {
           weight: data.weight || 0,
           height: data.height || 0,
           idSports: data.idSports || null,
-      
+
         };
       } else if (tipoUsuario === "distributor") {
         endpoint = "https://bluefruitnutrition-production.up.railway.app/api/registerDistributors";
@@ -56,7 +56,8 @@ function Registro() {
           NIT: data.NIT,
           address: data.address || "No especificado",
           verified: data.verified || false,
-  
+          status: data.status || true,
+
         };
       }
 
@@ -110,17 +111,17 @@ function Registro() {
           : "https://bluefruitnutrition-production.up.railway.app/api/registerDistributors/verifyCodeEmail";
 
       const res = await fetch(endpoint, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  credentials: "include",
-body: JSON.stringify({ requireCode: verificationCode, email: registeredEmail }),
-});
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ requireCode: verificationCode, email: registeredEmail }),
+      });
 
 
       const result = await res.json();
-console.log("Verification result:", result);
+      console.log("Verification result:", result);
 
       if (!res.ok) {
         return Swal.fire({
@@ -238,7 +239,17 @@ console.log("Verification result:", result);
                   max={minBirthDate}
                 />
                 <input type="text" placeholder="Dirección" className="input-modern" {...register("address")} />
-                <input type="text" placeholder="Género" className="input-modern" {...register("gender")} />
+                <select
+                  className={`input-modern ${errors.gender ? "input-error" : ""}`}
+                  {...register("gender", { required: "El género es obligatorio" })}
+                  defaultValue=""
+                >
+                  <option value="" disabled>Selecciona tu género</option>
+                  <option value="Hombre">Hombre</option>
+                  <option value="Mujer">Mujer</option>
+                </select>
+                {errors.gender && <span className="error-message">{errors.gender.message}</span>}
+
               </>
             ) : (
               <>
