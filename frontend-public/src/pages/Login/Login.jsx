@@ -201,7 +201,7 @@ const Login = () => {
               <br />
               <br />
 
-                            <a href="/enviar-codigo" className="forgot-password-link">
+                            <a href="/registro" className="forgot-password-link">
                 ¿No tienes una cuenta? <u>Registrate</u>              </a>
             </div>
           </form>

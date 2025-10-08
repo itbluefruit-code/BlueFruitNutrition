@@ -14,16 +14,25 @@ async function main() {
     console.log("Server running on port: " + config.server.port);
 
     // Iniciar cron job para eliminar usuarios no verificados cada 2 horas
-
-    cron.schedule("0 */2 * * *", () => {
+// Cada 2 minutos (poner 0 */2 * * * para cada 2 horas)
+cron.schedule("*/2 * * * *", async () => {
+    try {
         console.log("Ejecutando limpieza de usuarios no verificados...");
-        deleteUnverifiedCustomers();
-      });
+        await deleteUnverifiedCustomers();
+    } catch (error) {
+        console.error("Error eliminando customers:", error);
+    }
+});
 
-      cron.schedule("0 */2 * * *", () => {
+cron.schedule("*/2 * * * *", async () => {
+    try {
         console.log("⏰ Ejecutando limpieza de distribuidores no verificados...");
-        deleteUnverifiedDistributors();
-    });
+        await deleteUnverifiedDistributors();
+    } catch (error) {
+        console.error("Error eliminando distributors:", error);
+    }
+});
+
 }
 
 main();

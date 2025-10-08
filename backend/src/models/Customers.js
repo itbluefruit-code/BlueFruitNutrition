@@ -16,18 +16,22 @@ const customersSchema = new Schema(
     height: { type: Number, min: 100, max: 300, default: null },
     dateBirth: { type: Date, required: true },
     address: { type: String, default: "No especificado" },
-    gender: { type: String, default: "Otro" },
+    gender: { type: String, enum: ["Hombre", "Mujer", "Otro"], default: "Otro" },
     idSports: { type: Schema.Types.ObjectId, ref: "Sport", default: null },
-    verified: { type: Boolean, default: false },
-    verificationToken: { type: String, required: false },
+    verified: { type: Boolean, default: false, required: true },
+    verificationToken: { type: String },
     expireAt: {
       type: Date,
-      default: () => new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 horas desde creación
+      default: () => new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 horas
     },
   },
   { timestamps: true }
 );
 
-
+// TTL index solo para usuarios no verificados
+customersSchema.index(
+  { expireAt: 1 },
+  { expireAfterSeconds: 0, partialFilterExpression: { verified: false } }
+);
 
 export default model("Customer", customersSchema);
