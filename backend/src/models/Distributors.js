@@ -39,7 +39,7 @@ const DistributorsSchema = new Schema(
     verificationToken: { type: String },
     expireAt: {
       type: Date,
-      default: () => new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 horas
+      default: () => new Date(Date.now() + 2 * 60), // 2 horas
     },
   },
   { timestamps: true, strict: true }
