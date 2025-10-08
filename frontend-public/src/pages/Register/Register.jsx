@@ -1,4 +1,3 @@
-// src/pages/Register/Registro.jsx
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
@@ -6,12 +5,17 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import "./Register.css";
 
 function Registro() {
-  const [tipoUsuario, setTipoUsuario] = useState("customer");
+  const [tipoUsuario, setTipoUsuario] = useState("customer"); // usa "customer" y "distributor"
   const [showModal, setShowModal] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm({ mode: "onTouched" });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm({ mode: "onTouched" });
 
   const getMinBirthDate = () => {
     const today = new Date();
@@ -26,14 +30,21 @@ function Registro() {
       let endpoint = "";
 
       if (tipoUsuario === "customer") {
+        // aquí era "customers" en tu if, pero tu estado usa "customer", se unifica a "customer"
         endpoint = "https://bluefruitnutrition-production.up.railway.app/api/registerCustomers";
         payload = {
           name: data.name,
           lastName: data.lastName,
           email: data.email,
           password: data.password,
-          phone: data.phone,
+          phone: data.phone || "00000000",
           dateBirth: data.dateBirth,
+          address: data.address || "No especificado",
+          gender: data.gender || "Otro",
+          weight: data.weight || 0,
+          height: data.height || 0,
+          idSports: data.idSports || null,
+
         };
       } else if (tipoUsuario === "distributor") {
         endpoint = "https://bluefruitnutrition-production.up.railway.app/api/registerDistributors";
@@ -41,13 +52,14 @@ function Registro() {
           companyName: data.companyName,
           email: data.email,
           password: data.password,
-          address: data.address,
-          phone: data.phone,
+          phone: data.phone || "00000000",
           NIT: data.NIT,
+          address: data.address || "No especificado",
+          verified: data.verified || false,
+          status: data.status || true,
+
         };
       }
-
-      console.log("Payload enviado:", payload);
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -63,9 +75,7 @@ function Registro() {
         result = { message: "No se pudo interpretar la respuesta del servidor" };
       }
 
-      console.log("Respuesta del servidor:", result);
-
-      if (!res.ok || (result.message && result.message.includes("already exist"))) {
+      if (!res.ok) {
         return Swal.fire({
           icon: "error",
           title: "Error en el registro",
@@ -73,12 +83,10 @@ function Registro() {
         });
       }
 
-      // Registro exitoso → mostrar modal de verificación
       setRegisteredEmail(payload.email);
       setShowModal(true);
       reset();
     } catch (error) {
-      console.error("Error en onSubmit:", error);
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -87,8 +95,7 @@ function Registro() {
     }
   };
 
-  // Simulación temporal de verificación
-  const handleVerifyCode = () => {
+  const handleVerifyCode = async () => {
     if (!verificationCode) {
       return Swal.fire({
         icon: "warning",
@@ -97,36 +104,59 @@ function Registro() {
       });
     }
 
-    // Simulación: cualquier código "123456" pasa
-    if (verificationCode === "123456") {
+    try {
+      const endpoint =
+        tipoUsuario === "customer"
+          ? "https://bluefruitnutrition-production.up.railway.app/api/registerCustomers/verifyCodeEmail"
+          : "https://bluefruitnutrition-production.up.railway.app/api/registerDistributors/verifyCodeEmail";
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ requireCode: verificationCode, email: registeredEmail }),
+      });
+
+
+      const result = await res.json();
+      console.log("Verification result:", result);
+
+      if (!res.ok) {
+        return Swal.fire({
+          icon: "error",
+          title: "Código incorrecto",
+          text: result.message || "El código ingresado no es válido.",
+        });
+      }
+
       Swal.fire({
         icon: "success",
         title: "Cuenta verificada",
-        text: "Tu cuenta ha sido activada correctamente.",
+        text: result.message || "Tu cuenta ha sido activada correctamente.",
       });
+
       setShowModal(false);
       setVerificationCode("");
-      return;
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Error al verificar el código.",
+      });
     }
-
-    Swal.fire({
-      icon: "error",
-      title: "Código incorrecto",
-      text: "El código ingresado no es válido. Prueba con 123456",
-    });
   };
 
   return (
     <div className="registro-wrapper">
       <div className="registro-card" role="region" aria-label="Registro de usuario">
-        {/* Lado izquierdo */}
         <div className="registro-left" aria-hidden="true">
           <img src="/imgregister.png" alt="Ilustración de seguridad" className="registro-img" />
         </div>
 
-        {/* Lado derecho */}
         <div className="registro-right">
-          <h1 className="welcome-title">Welcome!</h1>
+          <h1 className="welcome-title">Bienvenido!</h1>
           <h2 className="tipo-cuenta-titulo">Selecciona tu tipo de cuenta</h2>
 
           <div className="btn-switch-group" role="tablist" aria-label="Tipo de cuenta">
@@ -134,19 +164,24 @@ function Registro() {
               type="button"
               aria-pressed={tipoUsuario === "customer"}
               className={`btn-switch ${tipoUsuario === "customer" ? "active" : ""}`}
-              onClick={() => { setTipoUsuario("customer"); reset(); }}
+              onClick={() => {
+                setTipoUsuario("customer");
+                reset();
+              }}
             >
               Cliente
               <span className="btn-switch-icon" aria-hidden="true">
                 <img src={"/customerIcon.png"} alt="" />
               </span>
             </button>
-
             <button
               type="button"
               aria-pressed={tipoUsuario === "distributor"}
               className={`btn-switch ${tipoUsuario === "distributor" ? "active" : ""}`}
-              onClick={() => { setTipoUsuario("distributor"); reset(); }}
+              onClick={() => {
+                setTipoUsuario("distributor");
+                reset();
+              }}
             >
               Distribuidor
               <span className="btn-switch-icon" aria-hidden="true">
@@ -158,47 +193,87 @@ function Registro() {
           <p className="tipo-usuario-texto">
             Registrarse como {tipoUsuario === "customer" ? "Cliente" : "Distribuidor"}
           </p>
+          <br />
 
           <form className="registro-form" onSubmit={handleSubmit(onSubmit)}>
             {tipoUsuario === "customer" ? (
               <>
-                <input type="text" placeholder="Nombre" className={`input-modern ${errors.name ? "input-error" : ""}`} {...register("name", { required: "El nombre es obligatorio" })} />
+                <input
+                  type="text"
+                  placeholder="Nombre"
+                  className={`input-modern ${errors.name ? "input-error" : ""}`}
+                  {...register("name", { required: "El nombre es obligatorio" })}
+                />
                 {errors.name && <span className="error-message">{errors.name.message}</span>}
 
-                <input type="text" placeholder="Apellido" className={`input-modern ${errors.lastName ? "input-error" : ""}`} {...register("lastName", { required: "El apellido es obligatorio" })} />
+                <input
+                  type="text"
+                  placeholder="Apellido"
+                  className={`input-modern ${errors.lastName ? "input-error" : ""}`}
+                  {...register("lastName", { required: "El apellido es obligatorio" })}
+                />
                 {errors.lastName && <span className="error-message">{errors.lastName.message}</span>}
 
-                <input type="email" placeholder="Correo electrónico" className={`input-modern ${errors.email ? "input-error" : ""}`} {...register("email", { required: "El correo es obligatorio" })} />
+                <input
+                  type="email"
+                  placeholder="Correo electrónico"
+                  className={`input-modern ${errors.email ? "input-error" : ""}`}
+                  {...register("email", { required: "El correo es obligatorio" })}
+                />
                 {errors.email && <span className="error-message">{errors.email.message}</span>}
 
-                <input type="password" placeholder="Contraseña" className={`input-modern ${errors.password ? "input-error" : ""}`} {...register("password", { required: "La contraseña es obligatoria" })} />
+                <input
+                  type="password"
+                  placeholder="Contraseña"
+                  className={`input-modern ${errors.password ? "input-error" : ""}`}
+                  {...register("password", { required: "La contraseña es obligatoria" })}
+                />
                 {errors.password && <span className="error-message">{errors.password.message}</span>}
 
-                <input type="tel" placeholder="Número de teléfono" className={`input-modern ${errors.phone ? "input-error" : ""}`} {...register("phone", { required: "El teléfono es obligatorio" })} />
-                {errors.phone && <span className="error-message">{errors.phone.message}</span>}
+                <input type="tel" placeholder="Número de teléfono" className="input-modern" {...register("phone")} />
+                <input
+                  type="date"
+                  placeholder="Fecha de nacimiento"
+                  className={`input-modern ${errors.dateBirth ? "input-error" : ""}`}
+                  {...register("dateBirth", { required: "Fecha de nacimiento obligatoria" })}
+                  max={minBirthDate}
+                />
+                <input type="text" placeholder="Dirección" className="input-modern" {...register("address")} />
+                <select
+                  className={`input-modern ${errors.gender ? "input-error" : ""}`}
+                  {...register("gender", { required: "El género es obligatorio" })}
+                  defaultValue=""
+                >
+                  <option value="" disabled>Selecciona tu género</option>
+                  <option value="Hombre">Hombre</option>
+                  <option value="Mujer">Mujer</option>
+                </select>
+                {errors.gender && <span className="error-message">{errors.gender.message}</span>}
 
-                <input type="date" placeholder="Fecha de nacimiento" className={`input-modern ${errors.dateBirth ? "input-error" : ""}`} {...register("dateBirth", { required: "Fecha de nacimiento obligatoria" })} max={minBirthDate} />
-                {errors.dateBirth && <span className="error-message">{errors.dateBirth.message}</span>}
               </>
             ) : (
               <>
-                <input type="text" placeholder="Nombre de la empresa" className={`input-modern ${errors.companyName ? "input-error" : ""}`} {...register("companyName", { required: "El nombre de la empresa es obligatorio" })} />
-                {errors.companyName && <span className="error-message">{errors.companyName.message}</span>}
-
-                <input type="email" placeholder="Correo electrónico" className={`input-modern ${errors.email ? "input-error" : ""}`} {...register("email", { required: "El correo es obligatorio" })} />
-                {errors.email && <span className="error-message">{errors.email.message}</span>}
-
-                <input type="password" placeholder="Contraseña" className={`input-modern ${errors.password ? "input-error" : ""}`} {...register("password", { required: "La contraseña es obligatoria" })} />
-                {errors.password && <span className="error-message">{errors.password.message}</span>}
-
-                <input type="text" placeholder="Dirección" className={`input-modern ${errors.address ? "input-error" : ""}`} {...register("address", { required: "La dirección es obligatoria" })} />
-                {errors.address && <span className="error-message">{errors.address.message}</span>}
-
-                <input type="tel" placeholder="Teléfono" className={`input-modern ${errors.phone ? "input-error" : ""}`} {...register("phone", { required: "El teléfono es obligatorio" })} />
-                {errors.phone && <span className="error-message">{errors.phone.message}</span>}
-
-                <input type="text" placeholder="NIT / Registro Fiscal" className={`input-modern ${errors.NIT ? "input-error" : ""}`} {...register("NIT", { required: "El NIT/Registro Fiscal es obligatorio" })} />
-                {errors.NIT && <span className="error-message">{errors.NIT.message}</span>}
+                <input
+                  type="text"
+                  placeholder="Nombre de la empresa"
+                  className={`input-modern ${errors.companyName ? "input-error" : ""}`}
+                  {...register("companyName", { required: "El nombre de la empresa es obligatorio" })}
+                />
+                <input
+                  type="email"
+                  placeholder="Correo electrónico"
+                  className={`input-modern ${errors.email ? "input-error" : ""}`}
+                  {...register("email", { required: "El correo es obligatorio" })}
+                />
+                <input
+                  type="password"
+                  placeholder="Contraseña"
+                  className={`input-modern ${errors.password ? "input-error" : ""}`}
+                  {...register("password", { required: "La contraseña es obligatoria" })}
+                />
+                <input type="tel" placeholder="Teléfono" className="input-modern" {...register("phone")} />
+                <input type="text" placeholder="NIT / Registro Fiscal" className="input-modern" {...register("NIT")} />
+                <input type="text" placeholder="Dirección" className="input-modern" {...register("address")} />
               </>
             )}
 
@@ -215,7 +290,6 @@ function Registro() {
         </div>
       </div>
 
-      {/* Modal de verificación */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">

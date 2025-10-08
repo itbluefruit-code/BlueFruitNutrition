@@ -7,13 +7,6 @@
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## 👥 Integrantes del Equipo
-[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18+-blue.svg)](https://reactjs.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-6+-green.svg)](https://www.mongodb.com/)
-[![Express](https://img.shields.io/badge/Express.js-5.1.0-blue.svg)](https://expressjs.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-## 👥 Integrantes del Equipo
 
 - **Katherine Sofia Ceron Guillen** - *20220026* - Coordinadora  
 - **Rodrigo Leonel Torres Escobar** - *20200594* - Subcoordinador
@@ -24,7 +17,7 @@
 ---
 
 ## 💡 Descripción del Proyecto
-## 💡 Descripción del Proyecto
+
 
 **Blue Fruit Nutrición** es una compañía nacional dedicada a la investigación, formulación y desarrollo de productos funcionales dirigidos a deportistas de alto rendimiento y personas activas. Somos actualmente los únicos fabricantes de geles energéticos en el país, y competimos en la región centroamericana con presencia en Costa Rica, Panamá y Guatemala, frente a productos mayoritariamente importados.
 
@@ -253,7 +246,7 @@ const MAX_FILE_SIZE = 5242880;
 
 ### 🗄️ Base de Datos (MongoDB)
 - **Colecciones**: PascalCase (Products, Customers, Orders, Distributors)
-- **Campos**: camelCase (name, email, createdAt, isVerified)
+- **Campos**: camelCase (name, email, createdAt, verified)
 - **Índices**: snake_case (idx_email, idx_created_at)
 
 ## 🚀 Instalación y Configuración
@@ -511,7 +504,7 @@ const MAX_FILE_SIZE = 5242880;
 
 ### 🗄️ Base de Datos (MongoDB)
 - **Colecciones**: PascalCase (Products, Customers, Orders, Distributors)
-- **Campos**: camelCase (name, email, createdAt, isVerified)
+- **Campos**: camelCase (name, email, createdAt, verified)
 - **Índices**: snake_case (idx_email, idx_created_at)
 
 ## 🚀 Instalación y Configuración

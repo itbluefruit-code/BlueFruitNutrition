@@ -7,6 +7,7 @@ import "./Login.css";
 const AdminCodeModal = ({ onClose, email }) => {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const { API_URL } = useAuthContext();
 
   const handleVerifyCode = async () => {
     if (!code.trim()) {
@@ -15,7 +16,7 @@ const AdminCodeModal = ({ onClose, email }) => {
     }
     setLoading(true);
     try {
-      const res = await fetch("https://bluefruitnutrition-production.up.railway.app/api/admin/verify-code", {
+      const res = await fetch(`${API_URL}/admin/verify-code`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -26,7 +27,7 @@ const AdminCodeModal = ({ onClose, email }) => {
       if (!res.ok) throw new Error(data.message || "Código inválido");
 
       toast.success("Código verificado correctamente");
-      window.location.href = "https://blue-fruit-nutrition-private.vercel.app";
+      window.location.href = "http://localhost:5174/"; // redirige a home
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -67,9 +68,9 @@ const Login = () => {
   const [adminEmail, setAdminEmail] = useState("");
   const [loadingLogin, setLoadingLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const navigate = useNavigate();
-  const { login, checkSession } = useAuthContext();
+  const { login, checkSession, API_URL } = useAuthContext();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -87,10 +88,11 @@ const Login = () => {
 
       toast.success("Credenciales correctas");
 
+      // Admin
       if (result.data.role === "admin") {
         if (showAdminModal) return;
 
-        const sendCodeRes = await fetch("https://bluefruitnutrition-production.up.railway.app/api/admin/send-code", {
+        const sendCodeRes = await fetch(`${API_URL}/admin/send-code`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -106,12 +108,10 @@ const Login = () => {
         return;
       }
 
+      // Usuario normal
       toast.success("Inicio de sesión exitoso");
       await checkSession();
-
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
+      setTimeout(() => navigate("/"), 1000);
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -123,9 +123,7 @@ const Login = () => {
     <div className="login-wrapper">
       <Toaster position="top-center" reverseOrder={false} />
 
-      {/* Tarjeta principal */}
       <div className="login-card">
-
         {/* Lado izquierdo - Imagen */}
         <div className="login-left">
           <img
@@ -200,12 +198,16 @@ const Login = () => {
               <a href="/enviar-codigo" className="forgot-password-link">
                 ¿Olvidaste tu contraseña?
               </a>
+              <br />
+              <br />
+
+                            <a href="/enviar-codigo" className="forgot-password-link">
+                ¿No tienes una cuenta? <u>Registrate</u>              </a>
             </div>
           </form>
         </div>
       </div>
 
-      {/* Modal de código admin */}
       {showAdminModal && (
         <AdminCodeModal email={adminEmail} onClose={() => setShowAdminModal(false)} />
       )}

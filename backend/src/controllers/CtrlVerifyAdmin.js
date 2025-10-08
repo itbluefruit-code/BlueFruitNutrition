@@ -1,36 +1,39 @@
 import jsonwebtoken from "jsonwebtoken";
 import { config } from "../config.js";
 import fetch from "node-fetch";
- 
+
 const adminVerificationController = {};
- 
+
+// Enviar código por correo
 adminVerificationController.sendCode = async (req, res) => {
   const { email, password } = req.body;
- 
+
+  // Validar credenciales base
   if (email !== config.emailAdmin.email || password !== config.emailAdmin.password) {
     return res.status(401).json({ message: "Credenciales inválidas" });
   }
- 
+
   // Generar código de 6 dígitos
   const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
- 
-  // Crear token con el código
-  const tokenCode = jsonwebtoken.sign(
+
+  // Crear token con el código (expira en 5 min)
+  const verificationToken = jsonwebtoken.sign(
     { email, verificationCode },
     config.JWT.secret,
     { expiresIn: "5m" }
   );
- 
-  // Detectar si estamos en producción o local
+
+  // Detectar entorno
   const isProduction = process.env.NODE_ENV === "production";
- 
-  res.cookie("adminVerificationToken", tokenCode, {
+
+  // Guardar el token temporal en cookie
+  res.cookie("adminVerificationToken", verificationToken, {
     httpOnly: true,
-    sameSite: isProduction ? "none" : "lax", // none para cross-site prod
-    secure: isProduction,                   // true solo en prod con HTTPS
-    maxAge: 5 * 60 * 1000
+    secure: isProduction,
+    sameSite: isProduction ? "None" : "Lax",
+    maxAge: 5 * 60 * 1000 // 5 minutos
   });
- 
+
   // ENVIAR CORREO CON BREVO API
   try {
     const response = await fetch("https://api.brevo.com/v3/smtp/email", {
@@ -62,42 +65,67 @@ adminVerificationController.sendCode = async (req, res) => {
           </div>
         `,
       }),
-     
     });
- 
+
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Error al enviar con Brevo:", errorData);
       return res.status(400).json({ message: "Error enviando el correo" });
     }
- 
-    res.status(200).json({ message: "Código enviado al correo" });
+
+    return res.status(200).json({ message: "Código enviado al correo" });
   } catch (error) {
     console.error("Error al usar Brevo:", error);
-    res.status(500).json({ message: "Error interno al enviar correo" });
+    return res.status(500).json({ message: "Error interno al enviar correo" });
   }
 };
- 
+
+// Verificar código y establecer sesión
 adminVerificationController.verifyCode = async (req, res) => {
   const { code } = req.body;
   const token = req.cookies.adminVerificationToken;
- 
-  if (!token) return res.status(400).json({ message: "No hay token de verificación" });
- 
+
+  if (!token) {
+    return res.status(400).json({ message: "No hay token de verificación" });
+  }
+
   try {
     const decoded = jsonwebtoken.verify(token, config.JWT.secret);
+
     if (decoded.verificationCode !== code) {
       return res.status(422).json({ message: "Código inválido" });
     }
- 
+
+    // ✅ Si el código es correcto, creamos el token de sesión principal
+    const sessionToken = jsonwebtoken.sign(
+      {
+        id: "507f1f77bcf86cd799439011",
+        email: decoded.email,
+        name: "Administrador",
+        role: "admin",
+      },
+      config.JWT.secret,
+      { expiresIn: "1d" }
+    );
+
+    const isProduction = process.env.NODE_ENV === "production";
+
+    // Guardar token de sesión en cookie
+    res.cookie("authToken", sessionToken, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "None" : "Lax",
+      maxAge: 24 * 60 * 60 * 1000 // 1 día
+    });
+
+    // Limpiar el token temporal
     res.clearCookie("adminVerificationToken");
- 
-    // Aquí puedes marcar en sesión que el admin ya está validado si usas sesiones
-    res.status(200).json({ message: "Verificación de admin exitosa" });
+
+    return res.status(200).json({ message: "Verificación exitosa y sesión iniciada" });
   } catch (error) {
-    console.error(error);
-    res.status(400).json({ message: "Token inválido o expirado" });
+    console.error("Error en verifyCode:", error);
+    return res.status(400).json({ message: "Token inválido o expirado" });
   }
 };
- 
+
 export default adminVerificationController;

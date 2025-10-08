@@ -5,8 +5,20 @@ import './Suscripciones.css';
 const Beneficios = () => {
   const navigate = useNavigate();
 
-  // 🔹 Redirige a la pantalla de pago
-  const handleComprar = () => {
+   const handleComprar = () => {
+    // Datos de la suscripción que el usuario está comprando
+    const nuevaSuscripcion = {
+      usuario: localStorage.getItem("userEmail") || "cliente@test.com",
+      fecha: new Date().toISOString().split("T")[0],
+      precio: 19.99,
+      plan: "Plan Único",
+      estado: "Pendiente",
+    };
+
+    // Guardar en localStorage (para que Suscripciones privadas la lea)
+    localStorage.setItem("nuevaSuscripcion", JSON.stringify(nuevaSuscripcion));
+
+    // Redirigir al método de pago
     navigate('/pay');
   };
 

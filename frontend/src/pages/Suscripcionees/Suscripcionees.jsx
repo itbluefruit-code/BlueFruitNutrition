@@ -14,12 +14,22 @@ const Suscripciones = () => {
         console.error("Error al obtener suscripciones:", error);
       }
     };
+
     fetchSuscripciones();
+
+    // 🔹 Verificar si hay una nueva suscripción guardada en localStorage
+    const nuevaSuscripcion = JSON.parse(localStorage.getItem("nuevaSuscripcion"));
+    if (nuevaSuscripcion) {
+      setSuscripciones(prev => [nuevaSuscripcion, ...prev]);
+      // Puedes eliminarla del localStorage si ya fue usada
+      localStorage.removeItem("nuevaSuscripcion");
+    }
   }, []);
 
   const handleEditar = (suscripcion) => {
     alert(`Editar suscripción de: ${suscripcion.usuario}`);
   };
+
 
   return (
     <div className="suscripciones-container">
