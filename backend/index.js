@@ -15,7 +15,7 @@ async function main() {
 
     // Iniciar cron job para eliminar usuarios no verificados cada 2 horas
 // Cada 2 minutos (poner 0 */2 * * * para cada 2 horas)
-cron.schedule("*/2 * * * *", async () => {
+cron.schedule("0 */2 * * *", async () => {
     try {
         console.log("Ejecutando limpieza de usuarios no verificados...");
         await deleteUnverifiedCustomers();
@@ -24,7 +24,7 @@ cron.schedule("*/2 * * * *", async () => {
     }
 });
 
-cron.schedule("*/2 * * * *", async () => {
+cron.schedule("0 */2 * * *", async () => {
     try {
         console.log("⏰ Ejecutando limpieza de distribuidores no verificados...");
         await deleteUnverifiedDistributors();
