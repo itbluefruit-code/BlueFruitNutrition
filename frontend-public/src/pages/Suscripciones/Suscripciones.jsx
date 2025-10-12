@@ -18,7 +18,7 @@ const Beneficios = () => {
     // Guardar en localStorage (para que Suscripciones privadas la lea)
     localStorage.setItem("nuevaSuscripcion", JSON.stringify(nuevaSuscripcion));
 
-    // Redirigir al método de pago
+    //   Redirigir al método de pago
     navigate('/pay');
   };
 

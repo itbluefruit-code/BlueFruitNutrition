@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../../context/useAuth"; // ✅ Importar contexto
+import { useAuthContext } from "../../context/useAuth";
 import "./CheckoutPage.css";
 
-// Objeto que contiene todos los departamentos y sus municipios
+// Objeto de departamentos y municipios
 const departamentosMunicipios = {
   Ahuachapán: ["Ahuachapán", "Apaneca", "Atiquizaya", "Concepción de Ataco", "El Refugio", "Guaymango", "Jujutla", "San Francisco Menéndez", "San Lorenzo", "San Pedro Puxtla", "Tacuba", "Turín"],
   Cabañas: ["Cinquera", "Dolores", "Guacotecti", "Ilobasco", "Jutiapa", "San Isidro", "Sensuntepeque", "Tejutepeque", "Victoria"],
@@ -22,48 +22,36 @@ const departamentosMunicipios = {
 };
 
 const AddressForm = () => {
-  const { user, loading } = useAuthContext(); // ✅ Obtener datos del usuario
+  const { user, loading } = useAuthContext();
   const navigate = useNavigate();
 
-  // Estados para almacenar la selección del usuario
   const [selectedDept, setSelectedDept] = useState("");
   const [selectedMunicipio, setSelectedMunicipio] = useState("");
   const [direccion, setDireccion] = useState("");
   const [referencia, setReferencia] = useState("");
-  const [nombre, setNombre] = useState(""); // ✅ Nuevo campo para nombre
-  const [telefono, setTelefono] = useState(""); // ✅ Nuevo campo para teléfono
+  const [nombre, setNombre] = useState("");
+  const [telefono, setTelefono] = useState("");
 
   const municipios = selectedDept ? departamentosMunicipios[selectedDept] || [] : [];
 
-  // ✅ Cargar datos del usuario automáticamente
+  // 🔹 Cargar datos del usuario desde backend
   useEffect(() => {
     const cargarDatosUsuario = async () => {
       if (user && user.id) {
         try {
-          // Determinar si es cliente o distribuidor
-          const tipoUsuario = user.role === 'customer' ? 'customers' : 'distributors';
-          
+          const tipoUsuario = user.role === "customer" ? "customers" : "distributors";
           const response = await fetch(`https://bluefruitnutrition-production.up.railway.app/api/${tipoUsuario}/${user.id}`, {
-            credentials: 'include'
+            credentials: "include",
           });
 
           if (response.ok) {
             const userData = await response.json();
-            console.log('✅ Datos del usuario cargados:', userData);
-            
-            // ✅ Pre-llenar campos automáticamente
-            setNombre(userData.name || userData.companyName || '');
-            setTelefono(userData.phone || '');
-            setDireccion(userData.address || '');
-            
-            // ✅ Si ya tiene dirección guardada, intentar parsearla
-            if (userData.address) {
-              // Aquí podrías implementar lógica para detectar departamento/municipio
-              // desde la dirección guardada si tu BD lo maneja así
-            }
+            setNombre(userData.name || userData.companyName || "");
+            setTelefono(userData.phone || "");
+            setDireccion(userData.address || "");
           }
         } catch (error) {
-          console.error('Error cargando datos del usuario:', error);
+          console.error("Error cargando datos del usuario:", error);
         }
       }
     };
@@ -73,23 +61,25 @@ const AddressForm = () => {
     }
   }, [user, loading]);
 
-  // ✅ También cargar datos guardados previamente en la sesión
+  // 🔹 Cargar datos guardados localmente
   useEffect(() => {
-    const datosGuardados = localStorage.getItem('datosEnvio');
+    const datosGuardados = localStorage.getItem("datosEnvio");
     if (datosGuardados) {
       const datos = JSON.parse(datosGuardados);
-      setSelectedDept(datos.departamento || '');
-      setSelectedMunicipio(datos.municipio || '');
-      setDireccion(datos.direccion || '');
-      setReferencia(datos.referencia || '');
+      setSelectedDept(datos.departamento || "");
+      setSelectedMunicipio(datos.municipio || "");
+      setDireccion(datos.direccion || "");
+      setReferencia(datos.referencia || "");
+      setNombre(datos.nombre || "");
+      setTelefono(datos.telefono || "");
     }
   }, []);
 
   const handleBack = () => navigate("/carrito");
 
-  const handleContinuar = () => {
+  // ✅ Aquí está toda la integración final
+  const handleContinuar = async () => {
     if (selectedDept && selectedMunicipio && direccion.trim() && nombre.trim()) {
-      // ✅ Guardar datos de envío para usar en la factura
       const datosEnvio = {
         nombre,
         telefono,
@@ -98,25 +88,49 @@ const AddressForm = () => {
         direccion,
         referencia,
         direccionCompleta: `${direccion}, ${selectedMunicipio}, ${selectedDept.replace(/([A-Z])/g, " $1").trim()}`,
-        fechaRegistro: new Date().toISOString()
+        fechaRegistro: new Date().toISOString(),
       };
 
-      localStorage.setItem('datosEnvio', JSON.stringify(datosEnvio));
-      console.log('✅ Datos de envío guardados:', datosEnvio);
+      localStorage.setItem("datosEnvio", JSON.stringify(datosEnvio));
 
-      // ✅ Actualizar también los datos de compra
-      const datosCompra = JSON.parse(localStorage.getItem('datosCompra') || '{}');
+      const datosCompra = JSON.parse(localStorage.getItem("datosCompra") || "{}");
       const datosCompraActualizados = {
         ...datosCompra,
-        datosEnvio
+        datosEnvio,
       };
-      localStorage.setItem('datosCompra', JSON.stringify(datosCompraActualizados));
+      localStorage.setItem("datosCompra", JSON.stringify(datosCompraActualizados));
 
-      navigate("/pay"); // ✅ Ir directamente a pagar
+      const nuevaSuscripcion = {
+        fecha: new Date().toISOString().split("T")[0],
+        usuario: user?.email || nombre,
+        precio: datosCompra.total || 0,
+        plan: datosCompra.plan || "Plan Único",
+        estado: "Activa",
+        datosEnvio,
+      };
+
+      try {
+        const res = await fetch("https://bluefruitnutrition-production.up.railway.app/api/subscriptions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(nuevaSuscripcion),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          console.log("✅ Suscripción creada en el backend:", data);
+        } else {
+          console.warn("⚠️ Error al guardar la suscripción en el backend:", res.status);
+        }
+      } catch (error) {
+        console.error("❌ Error al conectar con el backend:", error);
+      }
+
+      localStorage.setItem("nuevaSuscripcion", JSON.stringify(nuevaSuscripcion));
+      navigate("/pay");
     }
   };
 
-  // ✅ Mostrar loading mientras se cargan los datos
   if (loading) {
     return (
       <div className="container">
@@ -130,15 +144,13 @@ const AddressForm = () => {
   return (
     <div className="container">
       <h2 className="title">Dirección de Envío</h2>
-      
-      {/* ✅ Mostrar información del usuario */}
+
       <div className="user-info">
         <p><strong>Usuario:</strong> {user?.email}</p>
         <p><small>Los datos se llenarán automáticamente con tu información guardada</small></p>
       </div>
 
       <div className="form-card">
-        {/* ✅ Campos de información personal */}
         <div className="flex-row">
           <div className="form-group flex-1">
             <label>Nombre completo*</label>
@@ -162,7 +174,6 @@ const AddressForm = () => {
           </div>
         </div>
 
-        {/* Selección de departamento y municipio */}
         <div className="flex-row">
           <div className="form-group flex-1">
             <label>Departamento*</label>
@@ -171,7 +182,7 @@ const AddressForm = () => {
               value={selectedDept}
               onChange={(e) => {
                 setSelectedDept(e.target.value);
-                setSelectedMunicipio(""); // Reinicia el municipio al cambiar departamento
+                setSelectedMunicipio("");
               }}
             >
               <option value="">Seleccione un departamento</option>
@@ -201,7 +212,6 @@ const AddressForm = () => {
           </div>
         </div>
 
-        {/* Campo para dirección completa */}
         <div className="form-group">
           <label>Dirección Completa*</label>
           <input
@@ -213,7 +223,6 @@ const AddressForm = () => {
           />
         </div>
 
-        {/* Campo para puntos de referencia */}
         <div className="form-group">
           <label>Puntos de referencia</label>
           <input
@@ -225,7 +234,6 @@ const AddressForm = () => {
           />
         </div>
 
-        {/* ✅ Botones de navegación actualizados */}
         <div className="button-row">
           <button onClick={handleBack} className="btn-outline">
             Regresar al Carrito
@@ -233,9 +241,7 @@ const AddressForm = () => {
           <button
             onClick={handleContinuar}
             disabled={!selectedDept || !selectedMunicipio || !direccion.trim() || !nombre.trim()}
-            className={`btn-primary ${
-              !selectedDept || !selectedMunicipio || !direccion.trim() || !nombre.trim() ? "disabled" : ""
-            }`}
+            className={`btn-primary ${!selectedDept || !selectedMunicipio || !direccion.trim() || !nombre.trim() ? "disabled" : ""}`}
           >
             Continuar al Pago
           </button>

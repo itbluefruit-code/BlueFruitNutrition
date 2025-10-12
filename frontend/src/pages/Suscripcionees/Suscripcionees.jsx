@@ -17,11 +17,10 @@ const Suscripciones = () => {
 
     fetchSuscripciones();
 
-    // 🔹 Verificar si hay una nueva suscripción guardada en localStorage
+    // 🔹 Verificar si hay una nueva suscripción en localStorage
     const nuevaSuscripcion = JSON.parse(localStorage.getItem("nuevaSuscripcion"));
     if (nuevaSuscripcion) {
       setSuscripciones(prev => [nuevaSuscripcion, ...prev]);
-      // Puedes eliminarla del localStorage si ya fue usada
       localStorage.removeItem("nuevaSuscripcion");
     }
   }, []);
@@ -29,7 +28,6 @@ const Suscripciones = () => {
   const handleEditar = (suscripcion) => {
     alert(`Editar suscripción de: ${suscripcion.usuario}`);
   };
-
 
   return (
     <div className="suscripciones-container">
@@ -48,9 +46,9 @@ const Suscripciones = () => {
         </thead>
         <tbody>
           {suscripciones.map((s, i) => (
-            <tr key={s._id}>
+            <tr key={s._id || i}>
               <td>{i + 1}</td>
-              <td>{s.fecha}</td>     {/* 👈 Debe coincidir con el nombre enviado en Beneficios */}
+              <td>{s.fecha}</td>
               <td>{s.usuario}</td>
               <td>{s.precio}</td>
               <td>{s.plan}</td>
