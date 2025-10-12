@@ -5,7 +5,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import "./Register.css";
 
 function Registro() {
-  const [tipoUsuario, setTipoUsuario] = useState("customer"); // usa "customer" y "distributor"
+  const [tipoUsuario, setTipoUsuario] = useState("customer"); // "customer" o "distributor"
   const [showModal, setShowModal] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
@@ -30,7 +30,6 @@ function Registro() {
       let endpoint = "";
 
       if (tipoUsuario === "customer") {
-        // aquí era "customers" en tu if, pero tu estado usa "customer", se unifica a "customer"
         endpoint = "https://bluefruitnutrition-production.up.railway.app/api/registerCustomers";
         payload = {
           name: data.name,
@@ -44,9 +43,8 @@ function Registro() {
           weight: data.weight || 0,
           height: data.height || 0,
           idSports: data.idSports || null,
-
         };
-      } else if (tipoUsuario === "distributor") {
+      } else {
         endpoint = "https://bluefruitnutrition-production.up.railway.app/api/registerDistributors";
         payload = {
           companyName: data.companyName,
@@ -57,7 +55,6 @@ function Registro() {
           address: data.address || "No especificado",
           verified: data.verified || false,
           status: data.status || true,
-
         };
       }
 
@@ -112,16 +109,12 @@ function Registro() {
 
       const res = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ requireCode: verificationCode, email: registeredEmail }),
       });
 
-
       const result = await res.json();
-      console.log("Verification result:", result);
 
       if (!res.ok) {
         return Swal.fire({
@@ -230,7 +223,24 @@ function Registro() {
                 />
                 {errors.password && <span className="error-message">{errors.password.message}</span>}
 
-                <input type="tel" placeholder="Número de teléfono" className="input-modern" {...register("phone")} />
+                {/* Teléfono cliente */}
+                <input
+                  type="tel"
+                  placeholder="Número de teléfono"
+                  className={`input-modern ${errors.phone ? "input-error" : ""}`}
+                  {...register("phone", {
+                    required: "El número de teléfono es obligatorio",
+                    minLength: { value: 8, message: "El número debe tener 8 dígitos" },
+                    maxLength: { value: 8, message: "El número no puede exceder 8 dígitos" },
+                  })}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, "");
+                    if (value.length > 8) value = value.slice(0, 8);
+                    e.target.value = value;
+                  }}
+                />
+                {errors.phone && <span className="error-message">{errors.phone.message}</span>}
+
                 <input
                   type="date"
                   placeholder="Fecha de nacimiento"
@@ -249,7 +259,6 @@ function Registro() {
                   <option value="Mujer">Mujer</option>
                 </select>
                 {errors.gender && <span className="error-message">{errors.gender.message}</span>}
-
               </>
             ) : (
               <>
@@ -271,8 +280,55 @@ function Registro() {
                   className={`input-modern ${errors.password ? "input-error" : ""}`}
                   {...register("password", { required: "La contraseña es obligatoria" })}
                 />
-                <input type="tel" placeholder="Teléfono" className="input-modern" {...register("phone")} />
-                <input type="text" placeholder="NIT / Registro Fiscal" className="input-modern" {...register("NIT")} />
+
+                {/* Teléfono distribuidor */}
+                <input
+                  type="tel"
+                  placeholder="Teléfono"
+                  className={`input-modern ${errors.phone ? "input-error" : ""}`}
+                  {...register("phone", {
+                    required: "El número de teléfono es obligatorio",
+                    minLength: { value: 8, message: "El número debe tener 8 dígitos" },
+                    maxLength: { value: 8, message: "El número no puede exceder 8 dígitos" },
+                  })}
+                  onChange={(e) => {
+                    let value = e.target.value.replace(/\D/g, "");
+                    if (value.length > 8) value = value.slice(0, 8);
+                    e.target.value = value;
+                  }}
+                />
+                {errors.phone && <span className="error-message">{errors.phone.message}</span>}
+
+<input
+  type="text"
+  placeholder="NIT / Registro Fiscal"
+  className={`input-modern ${errors.NIT ? "input-error" : ""}`}
+  {...register("NIT", {
+    required: "El NIT es obligatorio",
+    pattern: {
+      value: /^\d{4}-\d{6}-\d{3}-\d{1}$/,
+      message: "El NIT debe tener el formato 0614-241287-102-5",
+    },
+  })}
+  onChange={(e) => {
+    // Eliminar todo lo que no sea número
+    let value = e.target.value.replace(/\D/g, "");
+    // Limitar máximo 14 dígitos (4+6+3+1)
+    if (value.length > 14) value = value.slice(0, 14);
+
+    // Aplicar formato automático
+    let formatted = "";
+    if (value.length > 0) formatted += value.slice(0, 4);
+    if (value.length > 4) formatted += "-" + value.slice(4, 10);
+    if (value.length > 10) formatted += "-" + value.slice(10, 13);
+    if (value.length > 13) formatted += "-" + value.slice(13, 14);
+
+    e.target.value = formatted;
+  }}
+/>
+{errors.NIT && <span className="error-message">{errors.NIT.message}</span>}
+
+
                 <input type="text" placeholder="Dirección" className="input-modern" {...register("address")} />
               </>
             )}
