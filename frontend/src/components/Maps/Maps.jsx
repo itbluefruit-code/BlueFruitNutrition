@@ -31,6 +31,8 @@ const containerStyle = {
 // Centro por defecto
 const center = { lat: 13.7028, lng: -89.2073 };
 
+
+
 const GoogleMapAdmin = () => {
   const [locations, setLocations] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -51,7 +53,7 @@ const GoogleMapAdmin = () => {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   const { isLoaded, loadError } = useJsApiLoader({   
-    googleMapsApiKey,  
+    googleMapsApiKey: googleMapsApiKey,
     libraries
   });
 

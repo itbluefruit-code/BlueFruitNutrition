@@ -24,7 +24,7 @@ const StoresMap = () => {
   const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
  
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey,
+   googleMapsApiKey: googleMapsApiKey,
     libraries
   });
  
@@ -33,6 +33,7 @@ const StoresMap = () => {
     height: "100%",
     borderRadius: "12px"
   };
+  console.log('API Key:', import.meta.env.VITE_GOOGLE_MAPS_API_KEY);
  
   // Función para obtener las ubicaciones del backend
 const fetchStores = async () => {
