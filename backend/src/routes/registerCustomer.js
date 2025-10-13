@@ -3,11 +3,10 @@ import registerCustomersController from "../controllers/CtrlRegisterCustomers.js
 
 const router = express.Router();
 
-//1-
-router.route("/").post(registerCustomersController.register); //ingresar los datos de sin repetir correo y telefono ya que estos son unicos
+// Registrar cliente
+router.route("/").post(registerCustomersController.register);
 
-//2-
-router.route("/verifyCodeEmail").post(registerCustomersController.verificationCode); //para ingresar el token poner: "requireCode": "(token)"
-
+// Verificar código de email
+router.route("/verifyCodeEmail").post(registerCustomersController.verificationCode);
 
 export default router;

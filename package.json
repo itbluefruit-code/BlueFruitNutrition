@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "aos": "^2.3.4",
+    "node-cron": "^4.2.1",
     "react-hook-form": "^7.60.0",
     "react-hot-toast": "^2.5.2"
   }
