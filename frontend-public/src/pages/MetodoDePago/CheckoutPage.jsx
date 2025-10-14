@@ -77,7 +77,7 @@ const AddressForm = () => {
 
   const handleBack = () => navigate("/carrito");
 
-  // ✅ Aquí está toda la integración final
+  //  Aquí está toda la integración final
   const handleContinuar = async () => {
     if (selectedDept && selectedMunicipio && direccion.trim() && nombre.trim()) {
       const datosEnvio = {

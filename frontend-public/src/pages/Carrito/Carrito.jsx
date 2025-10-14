@@ -35,6 +35,30 @@ const Carrito = () => {
     .reduce((acc, p) => acc + p.precio * p.cantidad, 0)
     .toFixed(2);
 
+  //agregar producto al carrito
+  const agregarAlCarrito = (productoNuevo) => {
+    const carritoActual = JSON.parse(localStorage.getItem("carrito")) || [];
+
+    // Verificar si el producto ya existe
+    const productoExistente = carritoActual.find(
+      (p) => p.id === productoNuevo.id
+    );
+
+    let nuevoCarrito;
+    if (productoExistente) {
+      nuevoCarrito = carritoActual.map((p) =>
+        p.id === productoNuevo.id
+          ? { ...p, cantidad: p.cantidad + 1 }
+          : p
+      );
+    } else {
+      nuevoCarrito = [...carritoActual, { ...productoNuevo, cantidad: 1 }];
+    }
+
+    setProductos(nuevoCarrito);
+    localStorage.setItem("carrito", JSON.stringify(nuevoCarrito));
+  };
+
   const irAMetodoDePago = async () => {
     const orden = {
       numeroOrden: `ORD-${Date.now()}`,
@@ -42,34 +66,36 @@ const Carrito = () => {
       total: parseFloat(total),
       items: productos.reduce((acc, p) => acc + p.cantidad, 0),
       estado: "En proceso",
-      productos: productos.map(p => ({
+      productos: productos.map((p) => ({
         id: p.id.toString(),
         nombre: p.nombre,
         precio: p.precio,
-        cantidad: p.cantidad
-      }))
+        cantidad: p.cantidad,
+      })),
     };
 
     try {
-      const response = await fetch("https://bluefruitnutrition-production.up.railway.app/api/ordenes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orden),
-      });
+      const response = await fetch(
+        "https://bluefruitnutrition-production.up.railway.app/api/ordenes",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orden),
+        }
+      );
 
       if (response.ok) {
         alert("Orden enviada correctamente");
-        
-        //  Guardar datos para la factura
+
+        // Guardar datos para la factura
         const datosCompra = {
           orden,
           productos,
           total: parseFloat(total),
-          fecha: new Date().toISOString()
+          fecha: new Date().toISOString(),
         };
         localStorage.setItem("datosCompra", JSON.stringify(datosCompra));
-        
-        // NO vaciar carrito aquí - se vaciará después del pago exitoso
+
         navigate("/metodo");
       } else {
         alert("Error al enviar la orden");

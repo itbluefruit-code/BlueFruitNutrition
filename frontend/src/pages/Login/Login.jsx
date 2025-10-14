@@ -30,7 +30,7 @@ const AdminCodeModal = ({ onClose, email }) => {
     } catch (error) {
       toast.error(error.message);
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
   };
 
