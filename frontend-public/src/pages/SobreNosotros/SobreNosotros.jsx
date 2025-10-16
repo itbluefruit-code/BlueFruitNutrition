@@ -13,10 +13,10 @@ const SobreNosotros = () => {
   ];
 
   const estadisticas = [
-    { img: "/store 1.png", valor: "10.5k", texto: "Vendedores activos en nuestro sitio" },
-    { img: "/image 58.png", valor: "33k", texto: "Venta mensual de productos" },
-    { img: "/globe 1.png", valor: "45.5k", texto: "Clientes activos en nuestro sitio" },
-    { img: "/money-bag.png", valor: "25k", texto: "Venta anual en nuestro sitio" }
+    { img: "/tienda.png", valor: "10.5k", texto: "Vendedores activos en nuestro sitio" },
+    { img: "/dinero.png", valor: "33k", texto: "Venta mensual de productos" },
+    { img: "/url.png", valor: "45.5k", texto: "Clientes activos en nuestro sitio" },
+    { img: "/bolsa-de-dinero.png", valor: "25k", texto: "Venta anual en nuestro sitio" }
   ];
 
   const equipo = [

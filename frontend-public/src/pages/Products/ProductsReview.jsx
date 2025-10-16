@@ -78,7 +78,7 @@ const ProductsReview = () => {
         setLoading(false);
       })
       .catch(err => {
-        console.error(' Error al cargar el producto:', err);
+        console.error('❌ Error al cargar el producto:', err);
         setProduct(null);
         setLoading(false);
       });
@@ -91,9 +91,25 @@ const ProductsReview = () => {
 
   const loadReviews = () => {
     fetch(`http://localhost:4000/api/reviews?idProduct=${id}`, { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setReviews(data))
-      .catch(err => console.error('Error al obtener reseñas:', err));
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Error al cargar reseñas');
+        }
+        return res.json();
+      })
+      .then(data => {
+        // Asegurarse de que data sea un array
+        if (Array.isArray(data)) {
+          setReviews(data);
+        } else {
+          console.warn('⚠️ La respuesta de reseñas no es un array:', data);
+          setReviews([]);
+        }
+      })
+      .catch(err => {
+        console.error('❌ Error al obtener reseñas:', err);
+        setReviews([]); // Establecer array vacío en caso de error
+      });
   };
 
   const handleQuantityChange = (change) => {
@@ -102,7 +118,7 @@ const ProductsReview = () => {
 
   const handleFlavorChange = (flavor) => {
     setSelectedFlavor(flavor);
-    console.log(' Sabor cambiado a:', flavor);
+    console.log('🍓 Sabor cambiado a:', flavor);
   };
 
   const handleFlavorSelectChange = (e) => {
@@ -117,7 +133,7 @@ const ProductsReview = () => {
       return;
     }
 
-    const carrito = JSON.parse(localStorage.getItem("/carrito")) || [];
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     const productId = product._id || product.id;
     const uniqueId = selectedFlavor ? `${productId}_${selectedFlavor}` : productId;
 
@@ -154,11 +170,22 @@ const ProductsReview = () => {
     }
   };
 
-  // Calcular promedio de rating
+  // Calcular promedio de rating - CON VALIDACIÓN
   const calculateAverageRating = () => {
-    if (reviews.length === 0) return 0;
-    const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
-    return (sum / reviews.length).toFixed(1);
+    // Validar que reviews sea un array y tenga elementos
+    if (!Array.isArray(reviews) || reviews.length === 0) return 0;
+    
+    try {
+      const sum = reviews.reduce((acc, review) => {
+        // Validar que review.rating exista y sea un número
+        const rating = Number(review?.rating);
+        return acc + (isNaN(rating) ? 0 : rating);
+      }, 0);
+      return (sum / reviews.length).toFixed(1);
+    } catch (error) {
+      console.error('❌ Error al calcular rating promedio:', error);
+      return 0;
+    }
   };
 
   // Renderizar estrellas
@@ -214,14 +241,12 @@ const ProductsReview = () => {
               ← Volver a Productos
             </button>
 
-            {/* LAYOUT DE 2 COLUMNAS - COMO EN LA IMAGEN */}
+            {/* LAYOUT DE 2 COLUMNAS */}
             <div className="product-detail-layout">
               
-              {/* COLUMNA 1: IMAGEN CON MINIATURAS */}
+              {/* COLUMNA 1: IMAGEN */}
               <div className="product-image-section">
                 <div className="product-image-container">
-                  
-                  
                   <img
                     src={product.image || '/placeholder-product.png'}
                     alt={product.name}
@@ -231,8 +256,6 @@ const ProductsReview = () => {
                     }}
                   />
                 </div>
-                
-               
               </div>
 
               {/* COLUMNA 2: INFORMACIÓN */}
@@ -240,6 +263,8 @@ const ProductsReview = () => {
                 {/* Categoría */}
                 <div className="product-category">Producto</div>
 
+                {/* Título */}
+                <h1 className="product-title">{product.name}</h1>
 
                 {/* Rating */}
                 <div className="product-rating">
@@ -259,12 +284,12 @@ const ProductsReview = () => {
                   )}
                 </div>
 
-                {/* Descripción corta */}
+                {/* Descripción */}
                 <p className="product-short-description">
                   {product.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.'}
                 </p>
 
-                {/* Selector de sabores/tamaños */}
+                {/* Selector de sabores */}
                 {product.flavor && product.flavor.length > 0 && (
                   <div className="flavor-selector-container">
                     <label className="flavor-label">Sabor:</label>
@@ -297,7 +322,7 @@ const ProductsReview = () => {
                   </div>
                 )}
 
-                {/* Cantidad y Botones en la misma línea - COMO EN LA IMAGEN */}
+                {/* Cantidad y Botones */}
                 <div className="quantity-and-actions">
                   <div className="quantity-controls">
                     <button 
@@ -317,21 +342,18 @@ const ProductsReview = () => {
                   </div>
 
                   <button className="add-to-cart-btn-inline" onClick={handleAddToCart}>
-                    Agregar a el carrito
+                    Agregar al carrito
                   </button>
                   
                   <button className="buy-now-btn-inline" onClick={handleAddToCart}>
                     Personalizar
                   </button>
-                  
                 </div>
-
-                
               </div>
             </div>
           </div>
 
-          {/* SECCIÓN DE RESEÑAS - NO SE TOCA */}
+          {/* SECCIÓN DE RESEÑAS */}
           <div className="reviews-section">
             <div className="reviews-column">
               <div className="reviews-header">
@@ -363,7 +385,7 @@ const ProductsReview = () => {
 
               {/* Lista de reseñas */}
               <div className="reviews-list">
-                {reviews.length > 0 ? (
+                {Array.isArray(reviews) && reviews.length > 0 ? (
                   reviews.map((review) => (
                     <Review key={review._id} review={review} />
                   ))

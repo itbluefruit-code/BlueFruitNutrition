@@ -392,3 +392,34 @@ td button:hover {
     padding: 14px 20px;
   }
 }
+/* Alineación en una sola línea imagen + texto */
+.producto-celda {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  white-space: nowrap;
+}
+
+/* Botón de eliminar con icono */
+.btn-eliminar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.btn-eliminar svg {
+  color: #d9534f;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.btn-eliminar:hover svg {
+  color: #b52b27;
+  transform: scale(1.2);
+}
+
+.btn-eliminar:hover {
+  background-color: #fee;
+}
