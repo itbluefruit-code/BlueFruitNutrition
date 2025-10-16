@@ -42,7 +42,6 @@ const DistributorsSchema = new Schema(
       unique: true,
       match: [/^[0-9]{8}$/, "El número de teléfono debe tener 8 dígitos válidos"],
     },
-
     NIT: {
       type: String,
       required: true,
