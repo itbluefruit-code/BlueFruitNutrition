@@ -28,6 +28,11 @@
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.product-detail-container.editing-mode {
+  box-shadow: 0 8px 30px rgba(12, 19, 63, 0.15);
 }
 
 /* Botón de volver */
@@ -44,7 +49,7 @@
 }
 
 .back-button:hover {
-  background: rgba(0, 123, 255, 0.1);
+  background: rgba(12, 19, 63, 0.1);
 }
 
 /* Layout de dos columnas */
@@ -62,12 +67,18 @@
   align-items: center;
   justify-content: center;
   padding: 40px;
+  transition: background 0.3s ease;
+}
+
+.product-image-section.editing {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 }
 
 .product-image-container {
   width: 100%;
   max-width: 350px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -79,27 +90,46 @@
   max-height: 350px;
   object-fit: contain;
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
-}
-
-/* Imagen editable */
-.image-input {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  opacity: 0.9;
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  background: #007bff;
-  color: white;
-  border: none;
-  font-weight: 600;
   transition: all 0.3s ease;
+  border-radius: 12px;
 }
 
-.image-input:hover {
-  background: #0056b3;
+.product-image-container.editing .product-main-image {
+  border: 3px dashed #0C133F;
+  padding: 10px;
+  background: white;
+}
+
+/* Label para subir imagen */
+.image-upload-label {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #0C133F 0%, #1a2566 100%);
+  color: white;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(12, 19, 63, 0.3);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.image-upload-label:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(12, 19, 63, 0.4);
+  background: linear-gradient(135deg, #1a2566 0%, #252f7a 100%);
+}
+
+.image-upload-label:active {
+  transform: translateY(0);
+}
+
+/* Input de imagen oculto */
+.image-input {
+  display: none;
 }
 
 /* Sección de información editable */
@@ -108,85 +138,156 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  transition: background 0.3s ease;
 }
 
 .product-info-section.editing {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-left: 4px solid #0C133F;
   animation: fadeInEdit 0.4s ease forwards;
 }
 
 @keyframes fadeInEdit {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
-/* Inputs de edición */
+/* Etiquetas de campos */
+.edit-field-label {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.edit-field-label::before {
+  content: '●';
+  color: #0C133F;
+  font-size: 0.7rem;
+}
+
+/* Inputs de edición mejorados */
 .edit-input,
 .edit-textarea {
   width: 100%;
-  padding: 12px 15px;
+  padding: 14px 18px;
   border: 2px solid #dee2e6;
   border-radius: 12px;
   font-size: 1rem;
   transition: all 0.3s ease;
   box-sizing: border-box;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
+  font-family: inherit;
+  background: white;
+  color: #000000;
 }
 
 .edit-input:focus,
 .edit-textarea:focus {
   outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+  border-color: #0C133F;
+  box-shadow: 0 0 0 4px rgba(12, 19, 63, 0.1);
+  background: #fff;
+  transform: translateY(-1px);
 }
 
-/* Botones guardar/cancelar */
+.edit-textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+.edit-input::placeholder,
+.edit-textarea::placeholder {
+  color: #adb5bd;
+}
+
+/* Contenedor de botones mejorado */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+/* Botones de acción con mejor diseño */
 .save-btn,
-.cancel-btn {
-  padding: 12px 25px;
+.cancel-btn,
+.customize-btn {
+  padding: 14px 32px;
   border-radius: 25px;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Botón Guardar */
 .save-btn {
-  background: #28a745;
+  background: linear-gradient(135deg, #0C133F 0%, #0C133F 100%);
   color: white;
+  box-shadow: 0 4px 15px rgba(12, 19, 63, 0.3);
+  flex: 1;
+  min-width: 140px;
 }
 
 .save-btn:hover {
-  background: #218838;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(12, 19, 63, 0.4);
+  background: linear-gradient(135deg, #0C133F 0%, #1a2566 100%);
 }
 
+.save-btn:active {
+  transform: translateY(0);
+}
+
+/* Botón Cancelar */
 .cancel-btn {
-  background: #dc3545;
-  color: white;
+  background: linear-gradient(135deg, #DCDCDC 0%, #F5F5F5 100%);
+  color: #0C133F;
+  box-shadow: 0 4px 15px rgba(220, 220, 220, 0.3);
+  flex: 1;
+  min-width: 140px;
 }
 
 .cancel-btn:hover {
-  background: #c82333;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 220, 220, 0.4);
+  background: linear-gradient(135deg, #d0d0d0 0%, #e8e8e8 100%);
+}
+
+.cancel-btn:active {
+  transform: translateY(0);
 }
 
 /* Botón de editar producto */
 .customize-btn {
-  background: white;
-  color: #1a1a3a;
-  border: 2px solid #1a1a3a;
-  padding: 15px 25px;
-  border-radius: 25px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #0C133F 0%, #1a2566 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(12, 19, 63, 0.3);
+  width: 100%;
 }
 
 .customize-btn:hover {
-  background: #1a1a3a;
-  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(12, 19, 63, 0.4);
+  background: linear-gradient(135deg, #1a2566 0%, #252f7a 100%);
+}
+
+.customize-btn:active {
+  transform: translateY(0);
 }
 
 /* Información del producto */
@@ -195,6 +296,7 @@
   font-weight: bold;
   color: #1a1a3a;
   margin-bottom: 20px;
+  line-height: 1.2;
 }
 
 .product-price {
@@ -220,6 +322,25 @@
   line-height: 1.6;
   font-size: 0.95rem;
   margin-bottom: 20px;
+}
+
+/* Badge de modo edición */
+.editing-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #0C133F 0%, #1a2566 100%);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(12, 19, 63, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
 }
 
 /* Cantidad */
@@ -270,14 +391,6 @@
   line-height: 40px;
 }
 
-/* Acción de botones */
-.action-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 25px;
-}
-
 /* Sección de reseñas */
 .reviews-section {
   background: #f8f9fa;
@@ -311,11 +424,42 @@
   gap: 20px;
 }
 
+/* Mensaje de no encontrado */
+.product-not-found {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.product-not-found h2 {
+  color: #495057;
+  margin-bottom: 20px;
+}
+
+.back-to-products-btn {
+  background: linear-gradient(135deg, #0C133F 0%, #1a2566 100%);
+  color: white;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(12, 19, 63, 0.3);
+}
+
+.back-to-products-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(12, 19, 63, 0.4);
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .products-review-wrapper { padding-left: 0; }
   .product-detail-layout { grid-template-columns: 1fr; }
   .product-image-section, .product-info-section { padding: 30px 20px; }
+  .action-buttons { flex-direction: column; }
+  .save-btn, .cancel-btn { width: 100%; }
 }
 
 @media (max-width: 768px) {
@@ -329,4 +473,5 @@
   .product-image-section, .product-info-section { padding: 20px 15px; }
   .product-title { font-size: 1.8rem; }
   .reviews-grid { grid-template-columns: 1fr; }
+  .save-btn, .cancel-btn { min-width: auto; }
 }

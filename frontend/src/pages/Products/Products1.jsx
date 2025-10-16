@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Products1.css';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const API_URL = "https://bluefruitnutrition-production.up.railway.app/api/products";
 
@@ -56,25 +57,60 @@ function Product() {
       setProducts(data);
     } catch (err) {
       setError(err.message);
+      await Swal.fire({
+        title: 'Error',
+        text: `No se pudieron cargar los productos: ${err.message}`,
+        icon: 'error',
+        confirmButtonColor: '#0C133F'
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("¿Estás seguro de eliminar este producto?")) return;
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción eliminará el producto permanentemente',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#0C133F',
+      cancelButtonColor: '#DCDCDC',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      reverseButtons: true
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       const response = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
       if (response.ok) {
+        await Swal.fire({
+          title: '¡Eliminado!',
+          text: 'Producto eliminado correctamente',
+          icon: 'success',
+          confirmButtonColor: '#0C133F',
+          timer: 2000,
+          timerProgressBar: true
+        });
         await fetchProducts();
-        alert("Producto eliminado correctamente");
       } else {
-        alert("Error al eliminar el producto");
+        await Swal.fire({
+          title: 'Error',
+          text: 'No se pudo eliminar el producto',
+          icon: 'error',
+          confirmButtonColor: '#0C133F'
+        });
       }
     } catch (err) {
       console.error("Error al eliminar:", err);
-      alert("Error al eliminar el producto");
+      await Swal.fire({
+        title: 'Error',
+        text: 'Ocurrió un error al eliminar el producto',
+        icon: 'error',
+        confirmButtonColor: '#0C133F'
+      });
     }
   };
 
@@ -83,7 +119,7 @@ function Product() {
   };
 
   return (
-    <div className="products-wrapper"> {/* WRAPPER CENTRADO */}
+    <div className="products-wrapper">
       <div className="products-container">
         <div className="products-header">
           <h2 className="products-title">Productos</h2>
