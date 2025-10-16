@@ -51,6 +51,7 @@ const Nav = () => {
             </li>
           )}
 
+          {/* 
           <li>
             <Link
               to="/suscripciones"
@@ -58,7 +59,8 @@ const Nav = () => {
             >
               Suscripciones
             </Link>
-          </li>
+          </li> 
+          */}
         </ul>
 
         {/* --- Íconos derecha --- */}
