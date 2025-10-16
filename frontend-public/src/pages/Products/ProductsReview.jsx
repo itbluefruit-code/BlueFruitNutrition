@@ -385,9 +385,9 @@ const ProductsReview = () => {
                     Agregar al carrito
                   </button>
                  
-                  <button className="buy-now-btn-inline" onClick={handleAddToCart}>
+                 { /*<button className="buy-now-btn-inline" onClick={handleAddToCart}>
                     Personalizar
-                  </button>
+                  </button>*/}
                 </div>
               </div>
             </div>
