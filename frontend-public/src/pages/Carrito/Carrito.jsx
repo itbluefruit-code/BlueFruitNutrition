@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/useAuth";
+import Swal from "sweetalert2";
 import "./Carrito.css";
 
 const Carrito = () => {
@@ -58,9 +59,18 @@ const Carrito = () => {
       });
 
       if (response.ok) {
-        alert("Orden enviada correctamente");
+        // SweetAlert de éxito
+        await Swal.fire({
+          icon: "success",
+          title: "¡Orden enviada!",
+          text: "Tu orden ha sido procesada correctamente",
+          confirmButtonText: "Continuar al pago",
+          confirmButtonColor: "#4CAF50",
+          timer: 3000,
+          timerProgressBar: true
+        });
         
-        //  Guardar datos para la factura
+        // Guardar datos para la factura
         const datosCompra = {
           orden,
           productos,
@@ -72,11 +82,25 @@ const Carrito = () => {
         // NO vaciar carrito aquí - se vaciará después del pago exitoso
         navigate("/metodo");
       } else {
-        alert("Error al enviar la orden");
+        // SweetAlert de error
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo enviar la orden. Intenta nuevamente.",
+          confirmButtonText: "Entendido",
+          confirmButtonColor: "#f44336"
+        });
       }
     } catch (error) {
       console.error("Error al enviar la orden:", error);
-      alert("Hubo un problema al conectar con el servidor.");
+      // SweetAlert de error de conexión
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "Hubo un problema al conectar con el servidor.",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#f44336"
+      });
     }
   };
 
@@ -85,7 +109,29 @@ const Carrito = () => {
       <h1>Tu Carrito</h1>
       <div className="carrito">
         {productos.length === 0 ? (
-          <p>Tu carrito está vacío.</p>
+          <div className="carrito-vacio">
+            <div className="carrito-vacio-content">
+              <svg 
+                className="carrito-vacio-icon" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2"
+              >
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              <h2>Tu carrito está vacío</h2>
+              <p>¡Agrega productos para empezar tu compra!</p>
+              <button 
+                className="btn-seguir-comprando"
+                onClick={() => navigate("/tienda")}
+              >
+                Ir a la tienda
+              </button>
+            </div>
+          </div>
         ) : (
           <>
             <table>
