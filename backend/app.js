@@ -39,6 +39,8 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
+  "blue-fruit-nutrition-alpha.vercel.app", // vercel
+  "blue-fruit-nutrition-private.vercel.app", // vercel privado
   "https://bluefruitnutrition-production.up.railway.app", // producción
 ];
 
