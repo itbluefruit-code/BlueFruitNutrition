@@ -6,10 +6,11 @@ import Review from '../../components/Review/ReviewView';
 import { useAuthContext } from '../../context/useAuth';
 import './ProductsReview.css';
 
+
 const ProductsReview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, user, loading: authLoading, API_URL, checkSession } = useAuthContext();
 
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState(null);
@@ -18,17 +19,14 @@ const ProductsReview = () => {
   const [selectedFlavor, setSelectedFlavor] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Cargar información del producto
+  // Cargar producto
   useEffect(() => {
     setLoading(true);
-    fetch(`http://localhost:4000/api/products/${id}`, { credentials: 'include' })
+    fetch(`${API_URL}/products/${id}`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
-        console.log('🔍 Producto recibido del backend:', data);
-        
-        // Procesar sabores
         let flavorsArray = [];
-        
+       
         if (data.flavor) {
           if (Array.isArray(data.flavor)) {
             if (data.flavor.length > 0 && typeof data.flavor[0] === 'string') {
@@ -60,17 +58,13 @@ const ProductsReview = () => {
           }
         }
 
-        // Limpiar sabores
         flavorsArray = flavorsArray
           .filter(f => f != null && f !== undefined)
           .map(f => String(f).trim())
           .filter(f => f.length > 0);
-        
-        console.log('Sabores procesados:', flavorsArray);
 
         setProduct({ ...data, flavor: flavorsArray });
 
-        // Seleccionar primer sabor por defecto
         if (flavorsArray.length > 0) {
           setSelectedFlavor(flavorsArray[0]);
         }
@@ -78,37 +72,40 @@ const ProductsReview = () => {
         setLoading(false);
       })
       .catch(err => {
-        console.error('❌ Error al cargar el producto:', err);
+        console.error(' Error al cargar producto:', err);
         setProduct(null);
         setLoading(false);
       });
-  }, [id]);
+  }, [id, API_URL]);
 
   // Cargar reseñas
   useEffect(() => {
     loadReviews();
-  }, [id]);
+  }, [id, API_URL]);
 
   const loadReviews = () => {
-    fetch(`http://localhost:4000/api/reviews?idProduct=${id}`, { credentials: 'include' })
+    console.log(' Cargando reseñas...');
+    fetch(`${API_URL}/reviews?idProduct=${id}`, { credentials: 'include' })
       .then(res => {
         if (!res.ok) {
-          throw new Error('Error al cargar reseñas');
+          console.error(' Error al cargar reseñas, status:', res.status);
+          throw new Error(`HTTP error! status: ${res.status}`);
         }
         return res.json();
       })
       .then(data => {
-        // Asegurarse de que data sea un array
+        console.log(' Respuesta de reseñas:', data);
         if (Array.isArray(data)) {
           setReviews(data);
+          console.log(' Reseñas cargadas:', data.length);
         } else {
-          console.warn('⚠️ La respuesta de reseñas no es un array:', data);
+          console.warn(' La respuesta no es un array:', data);
           setReviews([]);
         }
       })
       .catch(err => {
-        console.error('❌ Error al obtener reseñas:', err);
-        setReviews([]); // Establecer array vacío en caso de error
+        console.error(' Error al cargar reseñas:', err);
+        setReviews([]);
       });
   };
 
@@ -118,7 +115,6 @@ const ProductsReview = () => {
 
   const handleFlavorChange = (flavor) => {
     setSelectedFlavor(flavor);
-    console.log('🍓 Sabor cambiado a:', flavor);
   };
 
   const handleFlavorSelectChange = (e) => {
@@ -161,34 +157,44 @@ const ProductsReview = () => {
 
   const handleBackToProducts = () => navigate('/product');
 
-  const handleAddReview = () => {
-    if (!isAuthenticated) {
-      toast.error("Debes iniciar sesión para agregar una reseña.");
-      navigate("/login");
-    } else {
-      setShowReviewForm(true);
+  const handleAddReview = async () => {
+    if (authLoading) {
+      toast.loading('Verificando sesión...', { duration: 1000 });
+      return;
     }
+
+    if (!isAuthenticated || !user) {
+      toast.loading('Verificando sesión...', { id: 'checking-session' });
+      try {
+        await checkSession();
+        setTimeout(() => {
+          toast.dismiss('checking-session');
+          if (isAuthenticated && user) {
+            setShowReviewForm(true);
+          } else {
+            toast.error("Debes iniciar sesión para agregar una reseña");
+            setTimeout(() => navigate("/login"), 1500);
+          }
+        }, 800);
+      } catch (error) {
+        toast.dismiss('checking-session');
+        toast.error("Debes iniciar sesión para agregar una reseña");
+        setTimeout(() => navigate("/login"), 1500);
+      }
+      return;
+    }
+
+    setShowReviewForm(true);
   };
 
-  // Calcular promedio de rating - CON VALIDACIÓN
   const calculateAverageRating = () => {
-    // Validar que reviews sea un array y tenga elementos
-    if (!Array.isArray(reviews) || reviews.length === 0) return 0;
-    
-    try {
-      const sum = reviews.reduce((acc, review) => {
-        // Validar que review.rating exista y sea un número
-        const rating = Number(review?.rating);
-        return acc + (isNaN(rating) ? 0 : rating);
-      }, 0);
-      return (sum / reviews.length).toFixed(1);
-    } catch (error) {
-      console.error('❌ Error al calcular rating promedio:', error);
+    if (!Array.isArray(reviews) || reviews.length === 0) {
       return 0;
     }
+    const sum = reviews.reduce((acc, review) => acc + (review.rating || 0), 0);
+    return (sum / reviews.length).toFixed(1);
   };
 
-  // Renderizar estrellas
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
       <span key={index} className={`star ${index < rating ? 'filled' : ''}`}>
@@ -197,7 +203,6 @@ const ProductsReview = () => {
     ));
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="products-review-wrapper">
@@ -213,7 +218,6 @@ const ProductsReview = () => {
     );
   }
 
-  // Product not found
   if (product === null) {
     return (
       <div className="products-review-wrapper">
@@ -241,10 +245,7 @@ const ProductsReview = () => {
               ← Volver a Productos
             </button>
 
-            {/* LAYOUT DE 2 COLUMNAS */}
             <div className="product-detail-layout">
-              
-              {/* COLUMNA 1: IMAGEN */}
               <div className="product-image-section">
                 <div className="product-image-container">
                   <img
@@ -258,15 +259,10 @@ const ProductsReview = () => {
                 </div>
               </div>
 
-              {/* COLUMNA 2: INFORMACIÓN */}
               <div className="product-info-section">
-                {/* Categoría */}
                 <div className="product-category">Producto</div>
-
-                {/* Título */}
                 <h1 className="product-title">{product.name}</h1>
 
-                {/* Rating */}
                 <div className="product-rating">
                   <div className="stars">
                     {renderStars(Math.round(averageRating))}
@@ -276,7 +272,6 @@ const ProductsReview = () => {
                   </span>
                 </div>
 
-                {/* Precio */}
                 <div className="product-price-container">
                   <div className="product-price">${product.price.toFixed(2)}</div>
                   {product.oldPrice && (
@@ -284,17 +279,13 @@ const ProductsReview = () => {
                   )}
                 </div>
 
-                {/* Descripción */}
                 <p className="product-short-description">
-                  {product.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore.'}
+                  {product.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'}
                 </p>
 
-                {/* Selector de sabores */}
                 {product.flavor && product.flavor.length > 0 && (
                   <div className="flavor-selector-container">
                     <label className="flavor-label">Sabor:</label>
-                    
-                    {/* Botones para desktop */}
                     <div className="flavor-buttons">
                       {product.flavor.map((flavor, index) => (
                         <button
@@ -307,7 +298,6 @@ const ProductsReview = () => {
                       ))}
                     </div>
 
-                    {/* Dropdown para móvil */}
                     <select
                       value={selectedFlavor}
                       onChange={handleFlavorSelectChange}
@@ -322,19 +312,18 @@ const ProductsReview = () => {
                   </div>
                 )}
 
-                {/* Cantidad y Botones */}
                 <div className="quantity-and-actions">
                   <div className="quantity-controls">
-                    <button 
-                      className="quantity-btn" 
+                    <button
+                      className="quantity-btn"
                       onClick={() => handleQuantityChange(-1)}
                       disabled={quantity <= 1}
                     >
                       −
                     </button>
                     <span className="quantity-display">{quantity}</span>
-                    <button 
-                      className="quantity-btn" 
+                    <button
+                      className="quantity-btn"
                       onClick={() => handleQuantityChange(1)}
                     >
                       +
@@ -344,16 +333,11 @@ const ProductsReview = () => {
                   <button className="add-to-cart-btn-inline" onClick={handleAddToCart}>
                     Agregar al carrito
                   </button>
-                  
-                  <button className="buy-now-btn-inline" onClick={handleAddToCart}>
-                    Personalizar
-                  </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* SECCIÓN DE RESEÑAS */}
           <div className="reviews-section">
             <div className="reviews-column">
               <div className="reviews-header">
@@ -363,7 +347,6 @@ const ProductsReview = () => {
                 </button>
               </div>
 
-              {/* Estadísticas */}
               <div className="reviews-stats">
                 <div className="average-rating">{averageRating}</div>
                 <div className="stars">
@@ -372,18 +355,19 @@ const ProductsReview = () => {
                 <div className="total-reviews">({reviews.length} Reviews)</div>
               </div>
 
-              {/* Formulario de reseña */}
               {showReviewForm && (
                 <div className="review-form-wrapper">
                   <ReviewForm
                     productId={id}
                     onClose={() => setShowReviewForm(false)}
-                    onReviewAdded={loadReviews}
+                    onReviewAdded={() => {
+                      loadReviews();
+                      setShowReviewForm(false);
+                    }}
                   />
                 </div>
               )}
 
-              {/* Lista de reseñas */}
               <div className="reviews-list">
                 {Array.isArray(reviews) && reviews.length > 0 ? (
                   reviews.map((review) => (
