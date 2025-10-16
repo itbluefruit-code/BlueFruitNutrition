@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthContext } from "../../context/useAuth";
+import Swal from "sweetalert2";
 import "./Carrito.css";
 
 const Carrito = () => {
@@ -42,41 +42,61 @@ const Carrito = () => {
       total: parseFloat(total),
       items: productos.reduce((acc, p) => acc + p.cantidad, 0),
       estado: "En proceso",
-      productos: productos.map(p => ({
+      productos: productos.map((p) => ({
         id: p.id.toString(),
         nombre: p.nombre,
         precio: p.precio,
-        cantidad: p.cantidad
-      }))
+        cantidad: p.cantidad,
+      })),
     };
 
     try {
-      const response = await fetch("https://bluefruitnutrition-production.up.railway.app/api/ordenes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orden),
-      });
+      const response = await fetch(
+        "https://bluefruitnutrition-production.up.railway.app/api/ordenes",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orden),
+        }
+      );
 
       if (response.ok) {
-        alert("Orden enviada correctamente");
-        
-        //  Guardar datos para la factura
+        await Swal.fire({
+          icon: "success",
+          title: "¡Orden enviada!",
+          text: "Tu orden ha sido procesada correctamente",
+          confirmButtonText: "Continuar al pago",
+          confirmButtonColor: "#4CAF50",
+          timer: 3000,
+          timerProgressBar: true,
+        });
+
         const datosCompra = {
           orden,
           productos,
           total: parseFloat(total),
-          fecha: new Date().toISOString()
+          fecha: new Date().toISOString(),
         };
         localStorage.setItem("datosCompra", JSON.stringify(datosCompra));
-        
-        // NO vaciar carrito aquí - se vaciará después del pago exitoso
         navigate("/metodo");
       } else {
-        alert("Error al enviar la orden");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo enviar la orden. Intenta nuevamente.",
+          confirmButtonText: "Entendido",
+          confirmButtonColor: "#f44336",
+        });
       }
     } catch (error) {
       console.error("Error al enviar la orden:", error);
-      alert("Hubo un problema al conectar con el servidor.");
+      Swal.fire({
+        icon: "error",
+        title: "Error de conexión",
+        text: "Hubo un problema al conectar con el servidor.",
+        confirmButtonText: "Entendido",
+        confirmButtonColor: "#f44336",
+      });
     }
   };
 
@@ -85,7 +105,29 @@ const Carrito = () => {
       <h1>Tu Carrito</h1>
       <div className="carrito">
         {productos.length === 0 ? (
-          <p>Tu carrito está vacío.</p>
+          <div className="carrito-vacio">
+            <div className="carrito-vacio-content">
+              <svg
+                className="carrito-vacio-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+              <h2>Tu carrito está vacío</h2>
+              <p>¡Agrega productos para empezar tu compra!</p>
+              <button
+                className="btn-seguir-comprando"
+                onClick={() => navigate("/product")}
+              >
+                Explorar Productos
+              </button>
+            </div>
+          </div>
         ) : (
           <>
             <table>
@@ -101,7 +143,7 @@ const Carrito = () => {
               <tbody>
                 {productos.map((producto) => (
                   <tr key={producto.id}>
-                    <td>
+                    <td className="producto-celda">
                       <img src={producto.imagen} alt={producto.nombre} />
                       <span>{producto.nombre}</span>
                     </td>
@@ -118,8 +160,26 @@ const Carrito = () => {
                     </td>
                     <td>${calcularSubtotal(producto)}</td>
                     <td>
-                      <button onClick={() => eliminarProducto(producto.id)}>
-                        ❌
+                      <button
+                        onClick={() => eliminarProducto(producto.id)}
+                        className="btn-eliminar"
+                        aria-label="Eliminar producto"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={2}
+                          stroke="currentColor"
+                          width="24"
+                          height="24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
                       </button>
                     </td>
                   </tr>

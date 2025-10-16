@@ -12,14 +12,12 @@ const ProductsReview = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, loading: authLoading, API_URL, checkSession } = useAuthContext();
 
-
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [selectedFlavor, setSelectedFlavor] = useState('');
   const [loading, setLoading] = useState(true);
-
 
   // Cargar producto
   useEffect(() => {
@@ -60,20 +58,16 @@ const ProductsReview = () => {
           }
         }
 
-
         flavorsArray = flavorsArray
           .filter(f => f != null && f !== undefined)
           .map(f => String(f).trim())
           .filter(f => f.length > 0);
 
-
         setProduct({ ...data, flavor: flavorsArray });
-
 
         if (flavorsArray.length > 0) {
           setSelectedFlavor(flavorsArray[0]);
         }
-
 
         setLoading(false);
       })
@@ -84,12 +78,10 @@ const ProductsReview = () => {
       });
   }, [id, API_URL]);
 
-
   // Cargar reseñas
   useEffect(() => {
     loadReviews();
   }, [id, API_URL]);
-
 
   const loadReviews = () => {
     console.log(' Cargando reseñas...');
@@ -103,7 +95,6 @@ const ProductsReview = () => {
       })
       .then(data => {
         console.log(' Respuesta de reseñas:', data);
-        // ✅ Verificar que sea un array
         if (Array.isArray(data)) {
           setReviews(data);
           console.log(' Reseñas cargadas:', data.length);
@@ -118,39 +109,31 @@ const ProductsReview = () => {
       });
   };
 
-
   const handleQuantityChange = (change) => {
     setQuantity(prev => Math.max(1, prev + change));
   };
-
 
   const handleFlavorChange = (flavor) => {
     setSelectedFlavor(flavor);
   };
 
-
   const handleFlavorSelectChange = (e) => {
     setSelectedFlavor(e.target.value);
   };
 
-
   const handleAddToCart = () => {
     if (!product) return;
-
 
     if (product.flavor && product.flavor.length > 0 && !selectedFlavor) {
       toast.error("Por favor selecciona un sabor");
       return;
     }
 
-
     const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
     const productId = product._id || product.id;
     const uniqueId = selectedFlavor ? `${productId}_${selectedFlavor}` : productId;
 
-
     const existente = carrito.find(p => p.id === uniqueId);
-
 
     if (existente) {
       existente.cantidad += quantity;
@@ -166,63 +149,44 @@ const ProductsReview = () => {
       });
     }
 
-
     localStorage.setItem("carrito", JSON.stringify(carrito));
-
 
     const flavorText = selectedFlavor ? ` - ${selectedFlavor}` : '';
     toast.success(`Agregado al carrito: ${quantity} x ${product.name}${flavorText}`);
   };
 
-
   const handleBackToProducts = () => navigate('/product');
 
-
   const handleAddReview = async () => {
-    console.log('🔐 Click en Agregar Reseña');
-
-
     if (authLoading) {
       toast.loading('Verificando sesión...', { duration: 1000 });
       return;
     }
 
-
     if (!isAuthenticated || !user) {
-      console.log('⚠️ No autenticado');
-     
       toast.loading('Verificando sesión...', { id: 'checking-session' });
-     
       try {
         await checkSession();
-       
         setTimeout(() => {
           toast.dismiss('checking-session');
-         
           if (isAuthenticated && user) {
-            console.log('✅ Sesión verificada');
             setShowReviewForm(true);
           } else {
             toast.error("Debes iniciar sesión para agregar una reseña");
             setTimeout(() => navigate("/login"), 1500);
           }
         }, 800);
-       
       } catch (error) {
         toast.dismiss('checking-session');
         toast.error("Debes iniciar sesión para agregar una reseña");
         setTimeout(() => navigate("/login"), 1500);
       }
-     
       return;
     }
-
 
     setShowReviewForm(true);
   };
 
-
-  // ✅ Función segura que verifica si reviews es un array
   const calculateAverageRating = () => {
     if (!Array.isArray(reviews) || reviews.length === 0) {
       return 0;
@@ -231,7 +195,6 @@ const ProductsReview = () => {
     return (sum / reviews.length).toFixed(1);
   };
 
-
   const renderStars = (rating) => {
     return [...Array(5)].map((_, index) => (
       <span key={index} className={`star ${index < rating ? 'filled' : ''}`}>
@@ -239,7 +202,6 @@ const ProductsReview = () => {
       </span>
     ));
   };
-
 
   if (loading) {
     return (
@@ -255,7 +217,6 @@ const ProductsReview = () => {
       </div>
     );
   }
-
 
   if (product === null) {
     return (
@@ -273,9 +234,7 @@ const ProductsReview = () => {
     );
   }
 
-
   const averageRating = calculateAverageRating();
-
 
   return (
     <div className="products-review-wrapper">
@@ -286,9 +245,7 @@ const ProductsReview = () => {
               ← Volver a Productos
             </button>
 
-
             <div className="product-detail-layout">
-             
               <div className="product-image-section">
                 <div className="product-image-container">
                   <img
@@ -302,10 +259,9 @@ const ProductsReview = () => {
                 </div>
               </div>
 
-
               <div className="product-info-section">
                 <div className="product-category">Producto</div>
-
+                <h1 className="product-title">{product.name}</h1>
 
                 <div className="product-rating">
                   <div className="stars">
@@ -316,7 +272,6 @@ const ProductsReview = () => {
                   </span>
                 </div>
 
-
                 <div className="product-price-container">
                   <div className="product-price">${product.price.toFixed(2)}</div>
                   {product.oldPrice && (
@@ -324,16 +279,13 @@ const ProductsReview = () => {
                   )}
                 </div>
 
-
                 <p className="product-short-description">
                   {product.description || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'}
                 </p>
 
-
                 {product.flavor && product.flavor.length > 0 && (
                   <div className="flavor-selector-container">
                     <label className="flavor-label">Sabor:</label>
-                   
                     <div className="flavor-buttons">
                       {product.flavor.map((flavor, index) => (
                         <button
@@ -345,7 +297,6 @@ const ProductsReview = () => {
                         </button>
                       ))}
                     </div>
-
 
                     <select
                       value={selectedFlavor}
@@ -360,7 +311,6 @@ const ProductsReview = () => {
                     </select>
                   </div>
                 )}
-
 
                 <div className="quantity-and-actions">
                   <div className="quantity-controls">
@@ -380,19 +330,13 @@ const ProductsReview = () => {
                     </button>
                   </div>
 
-
                   <button className="add-to-cart-btn-inline" onClick={handleAddToCart}>
                     Agregar al carrito
                   </button>
-                 
-                 { /*<button className="buy-now-btn-inline" onClick={handleAddToCart}>
-                    Personalizar
-                  </button>*/}
                 </div>
               </div>
             </div>
           </div>
-
 
           <div className="reviews-section">
             <div className="reviews-column">
@@ -403,7 +347,6 @@ const ProductsReview = () => {
                 </button>
               </div>
 
-
               <div className="reviews-stats">
                 <div className="average-rating">{averageRating}</div>
                 <div className="stars">
@@ -411,7 +354,6 @@ const ProductsReview = () => {
                 </div>
                 <div className="total-reviews">({reviews.length} Reviews)</div>
               </div>
-
 
               {showReviewForm && (
                 <div className="review-form-wrapper">
@@ -425,7 +367,6 @@ const ProductsReview = () => {
                   />
                 </div>
               )}
-
 
               <div className="reviews-list">
                 {Array.isArray(reviews) && reviews.length > 0 ? (
@@ -445,6 +386,5 @@ const ProductsReview = () => {
     </div>
   );
 };
-
 
 export default ProductsReview;

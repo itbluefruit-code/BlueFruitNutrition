@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Star, X } from 'lucide-react';
+import { Star, X, Upload, Save, XCircle, Edit3, ArrowLeft } from 'lucide-react';
+import Swal from 'sweetalert2';
 import './ProductsReview.css';
 
 const ProductReviews = () => {
@@ -62,7 +63,18 @@ const ProductReviews = () => {
   };
 
   const handleDeleteReview = async (reviewId) => {
-    if (!window.confirm('¿Estás seguro de eliminar esta reseña?')) return;
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#0C133F',
+      cancelButtonColor: '#DCDCDC',
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       setDeletingReview(reviewId);
@@ -72,15 +84,30 @@ const ProductReviews = () => {
       });
 
       if (response.ok) {
-        alert('Reseña eliminada correctamente');
+        await Swal.fire({
+          title: '¡Eliminado!',
+          text: 'Reseña eliminada correctamente',
+          icon: 'success',
+          confirmButtonColor: '#0C133F'
+        });
         loadReviews();
       } else {
         const data = await response.json();
-        alert(data.message || 'Error al eliminar reseña');
+        await Swal.fire({
+          title: 'Error',
+          text: data.message || 'Error al eliminar reseña',
+          icon: 'error',
+          confirmButtonColor: '#0C133F'
+        });
       }
     } catch (err) {
       console.error('Error:', err);
-      alert('Error al eliminar la reseña');
+      await Swal.fire({
+        title: 'Error',
+        text: 'Error al eliminar la reseña',
+        icon: 'error',
+        confirmButtonColor: '#0C133F'
+      });
     } finally {
       setDeletingReview(null);
     }
@@ -105,7 +132,7 @@ const ProductReviews = () => {
   const handleSave = async () => {
     try {
       const formData = new FormData();
-      formData.append('name', editForm.name); // Nombre no editable
+      formData.append('name', editForm.name);
       formData.append('description', editForm.description);
       formData.append('price', editForm.price);
       if (editForm.image) formData.append('image', editForm.image);
@@ -116,16 +143,31 @@ const ProductReviews = () => {
       });
 
       if (response.ok) {
-        alert('Producto actualizado correctamente');
+        await Swal.fire({
+          title: '¡Actualizado!',
+          text: 'Producto actualizado correctamente',
+          icon: 'success',
+          confirmButtonColor: '#0C133F'
+        });
         setEditing(false);
         fetchProduct();
       } else {
         const data = await response.json();
-        alert(data.message || 'Error al actualizar producto');
+        await Swal.fire({
+          title: 'Error',
+          text: data.message || 'Error al actualizar producto',
+          icon: 'error',
+          confirmButtonColor: '#0C133F'
+        });
       }
     } catch (err) {
       console.error('Error al actualizar producto:', err);
-      alert('Error al actualizar producto');
+      await Swal.fire({
+        title: 'Error',
+        text: 'Error al actualizar producto',
+        icon: 'error',
+        confirmButtonColor: '#0C133F'
+      });
     }
   };
 
@@ -167,15 +209,16 @@ const ProductReviews = () => {
     <div className="products-review-wrapper">
       <div className="product-detail-screen">
         <div className="product-detail-main">
-          <div className="product-detail-container">
+          <div className={`product-detail-container ${editing ? 'editing-mode' : ''}`}>
             <button className="back-button" onClick={handleBackToProducts}>
+              <ArrowLeft size={18} style={{ display: 'inline', marginRight: '8px' }} />
               Volver a Productos
             </button>
 
             {/* Layout principal */}
             <div className="product-detail-layout">
-              <div className="product-image-section">
-                <div className="product-image-container">
+              <div className={`product-image-section ${editing ? 'editing' : ''}`}>
+                <div className={`product-image-container ${editing ? 'editing' : ''}`}>
                   <img
                     src={editing ? editForm.imagePreview : (product.image || '/placeholder-product.png')}
                     alt={product.name}
@@ -183,6 +226,7 @@ const ProductReviews = () => {
                   />
                   {editing && (
                     <label className="image-upload-label">
+                      <Upload size={18} />
                       Cambiar Imagen
                       <input type="file" accept="image/*" onChange={handleImageChange} className="image-input"/>
                     </label>
@@ -191,24 +235,34 @@ const ProductReviews = () => {
               </div>
 
               <div className={`product-info-section ${editing ? 'editing' : ''}`}>
+                {editing && (
+                  <span className="editing-badge">
+                    <Edit3 size={14} style={{ display: 'inline', marginRight: '4px' }} />
+                    Modo Edición
+                  </span>
+                )}
+                
                 <h1 className="product-title">{product.name}</h1>
 
                 {editing ? (
                   <>
+                    <label className="edit-field-label">Descripción</label>
                     <textarea
                       name="description"
                       value={editForm.description}
                       onChange={handleInputChange}
-                      placeholder="Descripción"
+                      placeholder="Ingresa la descripción del producto..."
                       className="edit-textarea"
                       rows={5}
                     />
+                    
+                    <label className="edit-field-label">Precio (USD)</label>
                     <input
                       type="number"
                       name="price"
                       value={editForm.price}
                       onChange={handleInputChange}
-                      placeholder="Precio"
+                      placeholder="0.00"
                       min="0"
                       step="0.01"
                       className="edit-input"
@@ -222,23 +276,21 @@ const ProductReviews = () => {
                   </>
                 )}
 
-                {/*<div className="quantity-section">
-                  <span>Cantidad:</span>
-                  <div className="quantity-controls">
-                    <button className="quantity-btn" onClick={() => handleQuantityChange(-1)}>-</button>
-                    <span className="quantity-display">{quantity}</span>
-                    <button className="quantity-btn" onClick={() => handleQuantityChange(1)}>+</button>
-                  </div>
-                </div>*/}
-
                 <div className="action-buttons">
                   {editing ? (
                     <>
-                      <button className="save-btn" onClick={handleSave}>Guardar</button>
-                      <button className="cancel-btn" onClick={handleCancel}>Cancelar</button>
+                      <button className="save-btn" onClick={handleSave}>
+                        <Save size={18} />
+                        Guardar Cambios
+                      </button>
+                      <button className="cancel-btn" onClick={handleCancel}>
+                        <XCircle size={18} />
+                        Cancelar
+                      </button>
                     </>
                   ) : (
                     <button className="customize-btn" onClick={() => setEditing(true)}>
+                      <Edit3 size={18} />
                       Editar Producto
                     </button>
                   )}
@@ -246,49 +298,6 @@ const ProductReviews = () => {
               </div>
             </div>
           </div>
-
-          {/* Sección de reseñas 
-          <div className="reviews-section">
-            <div className="reviews-container">
-              <div className="reviews-header">
-                <h2>Reseñas - Vista Administrativa</h2>
-                <span className="admin-badge">Panel Administrativo</span>
-              </div>
-
-              <div className="reviews-grid">
-                {reviews.length > 0 ? (
-                  reviews.map((review) => (
-                    <div key={review._id} className="review-card">
-                      <div className="review-header">
-                        <div className="reviewer-info">
-                          <div className="reviewer-avatar">
-                            {review.idClient?.name?.charAt(0).toUpperCase() || '?'}
-                          </div>
-                          <div className="reviewer-details">
-                            <div className="reviewer-name">{review.idClient?.name || 'Usuario'}</div>
-                            <div className="review-date">{new Date(review.createdAt).toLocaleDateString()}</div>
-                          </div>
-                        </div>
-                        <div className="review-actions">
-                          <div className="review-rating">{renderStars(review.rating)}</div>
-                          <button
-                            className="delete-review-btn admin-delete-btn"
-                            onClick={() => handleDeleteReview(review._id)}
-                            disabled={deletingReview === review._id}
-                          >
-                            {deletingReview === review._id ? '...' : <X size={18} />}
-                          </button>
-                        </div>
-                      </div>
-                      <div className="review-comment">{review.comment}</div>
-                    </div>
-                  ))
-                ) : (
-                  <p>No hay reseñas aún.</p>
-                )}
-              </div>
-            </div>
-          </div>*/}
         </div>
       </div>
     </div>

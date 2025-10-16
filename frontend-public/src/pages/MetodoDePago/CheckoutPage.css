@@ -40,7 +40,8 @@
 
 .button-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* centrar botones */
+  gap: 2rem; /* espacio entre botones */
   margin-top: 1.5rem;
 }
 
@@ -51,17 +52,29 @@
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
+/* Botón de regresar: letras negras */
 .btn-outline {
   background: white;
   border: 2px solid #333;
+  color: #000;
 }
 
+.btn-outline:hover {
+  background: #f0f0f0;
+}
+
+/* Botón de continuar: azul oscuro */
 .btn-primary {
   background-color: #0c133f;
   color: white;
   border: none;
+}
+
+.btn-primary:hover {
+  background-color: #1c2b7a;
 }
 
 .btn-primary.disabled {
