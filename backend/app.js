@@ -1,5 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
@@ -33,35 +34,33 @@ import authRoutes from "./src/routes/authRoutes.js";
 const app = express();
 
 // =====================================================
-// 🌐 CORS local con cookies habilitadas
+// 🌐 CORS configurado para permitir cookies
 // =====================================================
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
+  "https://bluefruitnutrition-production.up.railway.app", // producción
 ];
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  }
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-
-  next();
-});
+app.use(cors({
+  origin: function (origin, callback) {
+    // permitir solicitudes sin origen (ej: Postman)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // importante para enviar cookies
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  allowedHeaders: ["Content-Type", "Authorization", "Set-Cookie", "Cookie", "Origin", "Accept"],
+}));
 
 // =====================================================
 // 🧩 Middlewares base
 // =====================================================
-app.use(express.json());
 app.use(cookieParser());
+app.use(express.json());
 
 // =====================================================
 // 📘 Swagger (documentación API local)
@@ -104,12 +103,12 @@ app.use("/api/session", sessionRouter); // GET /api/session/auth/session
 // ⚠️ Manejo de errores
 // =====================================================
 
-// 404
+// 404 - Ruta no encontrada
 app.use((req, res) => {
   res.status(404).json({ message: "Ruta no encontrada" });
 });
 
-// 500
+// 500 - Error interno del servidor
 app.use((err, req, res, next) => {
   console.error("Error interno:", err);
   res.status(500).json({ message: "Error interno del servidor" });

@@ -1,89 +1,54 @@
-/*fields:
-    companyName, email, password, address, phone, status, NIT
-*/
-
 import { Schema, model } from "mongoose";
 
-const DistributorsSchema = new Schema({
-    companyName: {
-        type: String,
-        require: true
-    },
-
+const DistributorsSchema = new Schema(
+  {
+    companyName: { type: String, required: true },
     email: {
-        type: String,
-        require: true,
-        unique: true,
-        match:[
-            /^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}$/,
-            "Por favor ingrese un correo electronico valido", //validar el correo
-        ],
+      type: String,
+      required: true,
+      unique: true,
+      match: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z]{2,6}$/,
     },
-
-password: {
-  type: String,
-  required: true,
-  minlength: 6,
-  maxlength: 100,
-  validate: {
-    validator: function (value) {
-      return /[!@#$%^&*(),.?":{}|<>]/.test(value); //esta funcion hace que el correo necesite como minimo un caracter especial
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+      maxlength: 100,
+      validate: {
+        validator: function (value) {
+          return /[!@#$%^&*(),.?":{}|<>]/.test(value); // al menos un carácter especial
+        },
+        message: "La contraseña debe contener al menos un carácter especial.",
+      },
     },
-    message: "La contraseña debe contener al menos un carácter especial."
-  }
-},
-
-    address: {
-        type: String,
-        require: true
-    },
-
-
+    address: { type: String, required: true },
     phone: {
-        type: String,
-        require: true,
-        unique: true,
-        match: [/^[0-9]{8}$/, 
-                "el numero de teléfono tiene que ser válido"] //validar número de teléfono
+      type: String,
+      required: true,
+      unique: true,
+      match: [/^[0-9]{8}$/, "El número de teléfono debe tener 8 dígitos válidos"],
     },
-
     NIT: {
-        type: String,
-        required: true,
-        unique: true,
-       /* validate: {
-        validator: function (v) {
-            // Ejemplo de validación para un NIT (formato genérico)
-            return /^[A-Z0-9\-]{5,20}$/.test(v);
-        },*/
-
+      type: String,
+      required: true,
+      unique: true,
+      match: [/^[A-Z0-9\-]{5,20}$/, "El NIT debe tener entre 5 y 20 caracteres válidos"],
     },
-    
-    status: { //para saber si el usuario es valido y puede entrar
-        type: Boolean,
-        require: true
-    },
-
-            // Verificación
-    isVerified: { 
-        type: Boolean,
-         default: false 
-        },
-
-    //Expiración automática si no se verifica
+    status: { type: Boolean, required: true, default: true },
+    verified: { type: Boolean, default: false, required: true },
+    verificationToken: { type: String },
     expireAt: {
-        type: Date,
-        default: function () {
-            return new Date(Date.now() + 2*60*60*1000); // 2 HORAS
-        },
-        index: { expires: 0 } 
-    }
-
+      type: Date,
+      default: () => new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 horas 2 * 60 * 60 * 1000
     },
-    
-    {
-        timestamps: true,
-        strict: false
-    })
+  },
+  { timestamps: true, strict: true }
+);
 
-export default model("Distributors", DistributorsSchema);
+// TTL index solo para distribuidores no verificados
+DistributorsSchema.index(
+  { expireAt: 1 },
+  { expireAfterSeconds: 0, partialFilterExpression: { verified: false } }
+);
+
+export default model("Distributor", DistributorsSchema);

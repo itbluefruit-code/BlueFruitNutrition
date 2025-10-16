@@ -40,8 +40,9 @@ const Footer = () => {
       <div className="blue-fruit-footer-section">
         <h4>Cuenta</h4>
         <p>
-          <Link to="/login" style={{ color: 'white', textDecoration: 'none' }}>Iniciar sesión</Link>
-           <Link to="/registro"style={{ color: 'white', textDecoration: 'none' }}> Registrarse</Link>
+          <Link to="/login" style={{ color: 'white', textDecoration: 'none' }}><p><u>Iniciar sesión</u></p></Link>
+          
+           <Link to="/registro"style={{ color: 'white', textDecoration: 'none' }}><p><u>Registrarse</u></p> </Link>
         </p>
       </div>
 
