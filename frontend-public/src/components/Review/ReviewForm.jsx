@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { useAuthContext } from '../../context/useAuth';
+import './ReviewForm.css';
+
 
 const ReviewForm = ({ productId, onClose, onReviewAdded }) => {
   const [rating, setRating] = useState(0);
@@ -7,61 +10,108 @@ const ReviewForm = ({ productId, onClose, onReviewAdded }) => {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+
+  const { API_URL } = useAuthContext();
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+
+   
+
+
     // Validaciones
     if (rating === 0) {
+      console.log('❌ Error: rating es 0');
       toast.error('Por favor selecciona una calificación');
       return;
     }
 
+
     if (!comment.trim()) {
+      console.log('❌ Error: comentario vacío');
       toast.error('Por favor escribe un comentario');
       return;
     }
 
+
     if (comment.trim().length < 10) {
+      console.log('❌ Error: comentario muy corto');
       toast.error('El comentario debe tener al menos 10 caracteres');
       return;
     }
 
+
+    console.log('✅ Validaciones pasadas');
     setIsSubmitting(true);
 
+
     try {
-      const response = await fetch('http://localhost:4000/api/reviews', {
+      const url = `${API_URL}/reviews`;
+      const payload = {
+        comment: comment.trim(),
+        rating: rating,
+        idProduct: productId,
+      };
+
+
+      console.log('📤 Enviando petición:');
+      console.log('  URL:', url);
+      console.log('  Payload:', payload);
+      console.log('  Credentials: include');
+
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Importante para enviar las cookies de autenticación
-        body: JSON.stringify({
-          comment: comment.trim(),
-          rating: rating,
-          idProduct: productId,
-        }),
+        credentials: 'include',
+        body: JSON.stringify(payload),
       });
 
+
+      console.log('📡 Respuesta recibida:');
+      console.log('  Status:', response.status);
+      console.log('  Status Text:', response.statusText);
+      console.log('  OK:', response.ok);
+
+
       const data = await response.json();
+      console.log('  Data:', data);
+
 
       if (response.ok) {
+        console.log(' Reseña guardada exitosamente');
         toast.success('¡Reseña agregada exitosamente!');
         setRating(0);
         setComment('');
-        
-        // Llamar callbacks
-        if (onReviewAdded) onReviewAdded();
-        if (onClose) onClose();
+       
+        if (onReviewAdded) {
+          console.log('Llamando onReviewAdded');
+          onReviewAdded();
+        }
+        if (onClose) {
+          console.log(' Cerrando formulario');
+          onClose();
+        }
       } else {
+        console.error('❌ Error del servidor:', data);
         toast.error(data.message || 'Error al guardar la reseña');
       }
     } catch (error) {
-      console.error('Error al enviar reseña:', error);
+      console.error('💥 Error en catch:', error);
+      console.error('  Nombre:', error.name);
+      console.error('  Mensaje:', error.message);
+      console.error('  Stack:', error.stack);
       toast.error('Error de conexión. Por favor intenta nuevamente.');
     } finally {
+      console.log('🏁 Finalizando handleSubmit');
       setIsSubmitting(false);
     }
   };
+
 
   const handleCancel = () => {
     setRating(0);
@@ -69,11 +119,11 @@ const ReviewForm = ({ productId, onClose, onReviewAdded }) => {
     if (onClose) onClose();
   };
 
+
   return (
     <div className="review-form-container">
       <form onSubmit={handleSubmit} className="review-form">
-        
-        {/* Rating de estrellas */}
+       
         <div className="form-group">
           <label>Calificación *</label>
           <div className="rating-input">
@@ -83,7 +133,10 @@ const ReviewForm = ({ productId, onClose, onReviewAdded }) => {
                 className={`star interactive ${
                   star <= (hoveredRating || rating) ? 'filled' : ''
                 }`}
-                onClick={() => setRating(star)}
+                onClick={() => {
+                  setRating(star);
+                  console.log('⭐ Rating seleccionado:', star);
+                }}
                 onMouseEnter={() => setHoveredRating(star)}
                 onMouseLeave={() => setHoveredRating(0)}
               >
@@ -102,13 +155,16 @@ const ReviewForm = ({ productId, onClose, onReviewAdded }) => {
           </div>
         </div>
 
-        {/* Comentario */}
+
         <div className="form-group">
           <label htmlFor="comment">Tu reseña *</label>
           <textarea
             id="comment"
             value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            onChange={(e) => {
+              setComment(e.target.value);
+             
+            }}
             placeholder="Comparte tu experiencia con este producto..."
             rows="5"
             maxLength="500"
@@ -119,7 +175,7 @@ const ReviewForm = ({ productId, onClose, onReviewAdded }) => {
           </div>
         </div>
 
-        {/* Botones */}
+
         <div className="form-buttons">
           <button
             type="button"
@@ -141,5 +197,6 @@ const ReviewForm = ({ productId, onClose, onReviewAdded }) => {
     </div>
   );
 };
+
 
 export default ReviewForm;

@@ -1,30 +1,40 @@
 import mongoose, { Schema, model } from "mongoose";
 
+
 const reviewSchema = new Schema({
-  comment: { 
+  comment: {
     type: String,
+    required: true,
+    trim: true,
+    minlength: 10,
+    maxlength: 500
+  },
+  rating: {
+    type: Number,
+    required: true,
+    min: 1,
+    max: 5
+  },
+
+
+  idClient: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Customer',
     required: true
   },
-  rating: { 
-    type: Number, 
-    required: true,
-    min: 1, //Minimo requerido
-    max: 5  //Maximo requerido
-  },
-
-  //Manda a llamar el ID del cliente
-  idClient: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Customers',  
-    required: true 
-  },
-
-  //Manda a llamar el ID del producto
-  idProduct: { 
-    type: mongoose.Schema.Types.ObjectId, 
+ 
+  idProduct: {
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Products',  
-    required: true 
+    required: true
+  },
+  verified: {
+    type: Boolean,
+    default: false
   }
-}, { timestamps: true });
+}, {
+  timestamps: true
+});
 
-export default model("reviews", reviewSchema);
+
+export default model("Review", reviewSchema);

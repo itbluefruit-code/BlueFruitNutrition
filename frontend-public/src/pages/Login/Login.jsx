@@ -27,7 +27,7 @@ const AdminCodeModal = ({ onClose, email }) => {
       if (!res.ok) throw new Error(data.message || "Código inválido");
 
       toast.success("Código verificado correctamente");
-      window.location.href = "http://localhost:5174/"; // redirige a home
+      window.location.href = "https://blue-fruit-nutrition-private.vercel.app/"; // redirige a home
     } catch (error) {
       toast.error(error.message);
     } finally {
