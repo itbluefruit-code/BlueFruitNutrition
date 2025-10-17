@@ -5,19 +5,19 @@ const friendlyResponses = (text) => {
   const msg = text.toLowerCase();
 
   if (/(hola|buenas|buen día|buenas tardes|buenas noches)/.test(msg)) {
-    return "¡Hola! 😄 ¿En qué puedo ayudarte hoy?";
+    return "¡Hola! ¿En qué puedo ayudarte hoy?";
   }
 
   if (/(gracias|muchas gracias)/.test(msg)) {
-    return "¡De nada! Siempre estoy aquí para ayudarte 😊";
+    return "¡De nada! Siempre estoy aquí para ayudarte ";
   }
 
   if (/(adiós|nos vemos|chao)/.test(msg)) {
-    return "¡Hasta luego! Que tengas un buen día 👋";
+    return "¡Hasta luego! Que tengas un buen día ";
   }
 
   if (/(tengo una duda|quiero preguntar|puedes ayudarme)/.test(msg)) {
-    return "¡Claro! Pregúntame lo que quieras sobre nuestra empresa 📝";
+    return "¡Claro! Pregúntame lo que quieras sobre Blue Fruit";
   }
 
   return null; // No es un mensaje amistoso, seguimos con la búsqueda
@@ -41,7 +41,7 @@ export const getAnswer = async (req, res) => {
     if (found) {
       return res.json({ answer: found.answer });
     } else {
-      return res.json({ answer: "Lo siento, solo puedo responder preguntas sobre MiEmpresa." });
+      return res.json({ answer: "Lo siento, solo puedo responder preguntas sobre Blue Fruit" });
     }
   } catch (error) {
     console.error(error);
