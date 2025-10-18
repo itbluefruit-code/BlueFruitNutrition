@@ -1,146 +1,209 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* ========================================
+   LOGIN - DISEÑO MODERNO (Misma estética que Register)
+   ======================================== */
 
-html, body, #root {
-  height: 100%;
-  width: 100%;
-}
-
-.login-page {
+/* Contenedor principal */
+.login-wrapper {
   display: flex;
-  height: 100vh;
-  width: 100vw;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background-color: #f5f6fa;
-  overflow: hidden; /* evitar scroll innecesario */
-}
-
-/* LADO IZQUIERDO - IMAGEN FULL */
-.left-side {
-  flex: 1;
-  background-color: #0C133F;
-  height: 100vh;
-}
-
-.image-container {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
-}
-
-.promo-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* LADO DERECHO - FORMULARIO CENTRADO */
-.right-side {
-  flex: 1;
-  display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  font-family: 'Inter', sans-serif;
   padding: 20px;
-  background: white;
-  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.05);
-  height: 100vh;
-  overflow-y: auto;
 }
 
-.form-wrapper {
+/* Tarjeta de login */
+.login-card {
+  display: flex;
+  flex-direction: row;
   width: 100%;
-  max-width: 420px;
+  max-width: 950px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  background: #fff;
+}
+
+/* ========================================
+   LADO IZQUIERDO - ILUSTRACIÓN
+   ======================================== */
+.login-left {
+  flex: 1;
+  background: #0C133F;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 40px;
+}
+
+.login-left .login-img {
+  max-width: 100%;
+  height: auto;
   border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
 }
 
-.form-title {
-  font-size: 28px;
-  font-weight: 700;
+/* ========================================
+   LADO DERECHO - FORMULARIO
+   ======================================== */
+.login-right {
+  flex: 1;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #fff;
+}
+
+.login-title {
+  font-size: 32px;
+  font-weight: 800;
   color: #0C133F;
-  margin-bottom: 6px;
-  text-align: center;
+  margin-bottom: 10px;
 }
 
-.form-subtitle {
-  font-size: 15px;
-  color: #6b7280;
-  margin-bottom: 28px;
-  text-align: center;
+.login-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 25px;
 }
 
-.input-group {
-  margin-bottom: 18px;
-}
-
+/* Inputs modernos */
 .login-input {
   width: 100%;
-  height: 48px;
-  padding: 0 14px;
-  border: 1.8px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 15px;
-  transition: all 0.2s ease-in-out;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  color: #0C133F;
+  background: #f9f9f9;
+  outline: none;
+  transition: all 0.25s ease;
+  margin-bottom: 20px;
 }
 
 .login-input:focus {
-  outline: none;
-  border-color: #0C133F;
-  box-shadow: 0 0 0 3px rgba(12, 19, 63, 0.15);
+  border-color: #1E40AF;
+  box-shadow: 0 0 8px rgba(30,64,175,0.4);
+  background: #fff;
 }
 
+/* Contenedor del input + botón de contraseña */
+.password-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.password-container .login-input {
+  padding-right: 40px; /* espacio para el botón */
+}
+
+/* Botón mostrar/ocultar contraseña */
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  color: #666;
+}
+
+.toggle-password:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Mensajes de error */
+.input-error {
+  border-color: #ff4d4f;
+}
+
+.error-message {
+  font-size: 12px;
+  color: #ff4d4f;
+  margin-top: -12px;
+  margin-bottom: 12px;
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN
+   ======================================== */
 .login-btn {
   width: 100%;
-  height: 48px;
-  background: #0C133F;
-  color: white;
-  border: none;
-  border-radius: 8px;
+  background: #1E40AF; /* azul principal */
+  color: #fff;
+  padding: 14px 0;
+  border-radius: 10px;
+  font-weight: 700;
   font-size: 15px;
-  font-weight: 600;
+  border: none;
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  transition: all 0.3s ease;
+  margin-bottom: 15px;
 }
 
 .login-btn:hover {
-  background: #1a1f4d;
+  background: #1E3A8A; /* azul más oscuro en hover */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(30,64,175,0.4);
 }
 
+/* Enlace de contraseña olvidada */
 .forgot-password-container {
   text-align: center;
-  margin-top: 14px;
+  font-size: 14px;
+  color: #666;
 }
 
 .forgot-password-link {
-  color: #0C133F;
+  color: #1E40AF;
+  font-weight: 600;
   text-decoration: none;
-  font-size: 14px;
 }
 
 .forgot-password-link:hover {
   text-decoration: underline;
 }
 
-/* RESPONSIVE */
+/* ========================================
+   RESPONSIVE
+   ======================================== */
 @media (max-width: 900px) {
-  .login-page {
+  .login-card {
     flex-direction: column;
   }
 
-  .left-side {
-    height: 40vh;
+  .login-left {
+    padding: 30px;
   }
 
-  .right-side {
-    height: 60vh;
-    padding: 20px;
+  .login-right {
+    padding: 40px 30px;
+  }
+}
+
+@media (max-width: 500px) {
+  .login-title {
+    font-size: 26px;
   }
 
-  .form-wrapper {
-    padding: 20px;
+  .login-subtitle {
+    font-size: 14px;
+  }
+
+  .login-input {
+    padding: 12px 14px;
+  }
+
+  .login-btn {
+    font-size: 14px;
+    padding: 12px 0;
   }
 }
