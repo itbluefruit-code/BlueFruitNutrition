@@ -6,6 +6,42 @@ import Swal from 'sweetalert2';
 const API_URL = "https://bluefruitnutrition-production.up.railway.app/api/products";
 
 function ProductCard({ product, onView, onDelete }) {
+  // Función para procesar los sabores
+  const getFlavorsArray = (flavor) => {
+    if (!flavor) return [];
+    
+    // Si ya es un array
+    if (Array.isArray(flavor)) {
+      return flavor.filter(f => f && f.trim());
+    }
+    
+    // Si es un string que parece JSON array
+    if (typeof flavor === 'string') {
+      // Intentar parsear si tiene formato de array
+      if (flavor.startsWith('[') && flavor.endsWith(']')) {
+        try {
+          const parsed = JSON.parse(flavor);
+          return Array.isArray(parsed) ? parsed.filter(f => f && f.trim()) : [flavor];
+        } catch (e) {
+          // Si falla, tratar como string normal
+          return [flavor];
+        }
+      }
+      
+      // Si tiene comas, dividir
+      if (flavor.includes(',')) {
+        return flavor.split(',').map(f => f.trim()).filter(f => f);
+      }
+      
+      // String simple
+      return [flavor];
+    }
+    
+    return [];
+  };
+
+  const flavorsArray = getFlavorsArray(product.flavor);
+
   return (
     <div className="product-card">
       <div className="product-image-container">
@@ -18,7 +54,20 @@ function ProductCard({ product, onView, onDelete }) {
       </div>
       <h3 className="product-name">{product.name}</h3>
       <p className="product-description">{product.description}</p>
-      <p className="product-flavor"><strong>Sabor:</strong> {product.flavor}</p>
+      
+      {flavorsArray.length > 0 && (
+        <div className="product-flavor">
+          <strong>Sabores:</strong>
+          <div className="flavor-tags">
+            {flavorsArray.map((flavor, index) => (
+              <span key={index} className="flavor-tag">
+                {flavor}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      
       <p className="product-price"><strong>Precio:</strong> ${product.price}</p>
       <div className="product-buttons">
         <button 

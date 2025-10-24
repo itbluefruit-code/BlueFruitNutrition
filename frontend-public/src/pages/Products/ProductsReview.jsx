@@ -18,6 +18,10 @@ const ProductsReview = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [selectedFlavor, setSelectedFlavor] = useState('');
   const [loading, setLoading] = useState(true);
+  const [userHasReviewed, setUserHasReviewed] = useState(false);
+
+  // Verificar si el usuario es distribuidor
+  const isDistribuidor = user?.role === "distributor";
 
   // Cargar producto
   useEffect(() => {
@@ -81,7 +85,7 @@ const ProductsReview = () => {
   // Cargar reseñas
   useEffect(() => {
     loadReviews();
-  }, [id, API_URL]);
+  }, [id, API_URL, user]);
 
   const loadReviews = () => {
     console.log(' Cargando reseñas...');
@@ -98,13 +102,20 @@ const ProductsReview = () => {
         if (Array.isArray(data)) {
           setReviews(data);
           console.log(' Reseñas cargadas:', data.length);
+          
+          // Verificar si el usuario ya dejó una reseña
+          if (user && user.id) {
+            const hasReviewed = data.some(review => review.idUser === user.id);
+            setUserHasReviewed(hasReviewed);
+            console.log(' Usuario ya dejó reseña:', hasReviewed);
+          }
         } else {
-          console.warn(' La respuesta no es un array:', data);
+          console.warn('La respuesta no es un array:', data);
           setReviews([]);
         }
       })
       .catch(err => {
-        console.error(' Error al cargar reseñas:', err);
+        console.error('Error al cargar reseñas:', err);
         setReviews([]);
       });
   };
@@ -170,6 +181,18 @@ const ProductsReview = () => {
         setTimeout(() => {
           toast.dismiss('checking-session');
           if (isAuthenticated && user) {
+            // Verificar si es distribuidor
+            if (user.role === "distributor") {
+              toast.error("Los distribuidores no pueden agregar reseñas");
+              return;
+            }
+            
+            // Verificar si ya dejó una reseña
+            if (userHasReviewed) {
+              toast.error("Ya has dejado una reseña para este producto");
+              return;
+            }
+            
             setShowReviewForm(true);
           } else {
             toast.error("Debes iniciar sesión para agregar una reseña");
@@ -184,7 +207,40 @@ const ProductsReview = () => {
       return;
     }
 
+    // Verificar si es distribuidor
+    if (user.role === "distributor") {
+      toast.error("Los distribuidores no pueden agregar reseñas");
+      return;
+    }
+
+    // Verificar si ya dejó una reseña
+    if (userHasReviewed) {
+      toast.error("Ya has dejado una reseña para este producto");
+      return;
+    }
+
     setShowReviewForm(true);
+  };
+
+  const handleCustomize = () => {
+    if (!isAuthenticated || !user) {
+      toast.error("Debes iniciar sesión para personalizar productos");
+      setTimeout(() => navigate("/login"), 1500);
+      return;
+    }
+
+    if (isDistribuidor) {
+      toast.error("Los distribuidores no pueden personalizar productos");
+      return;
+    }
+
+    // Navegar a la página de personalización con los datos del producto
+    navigate('/personalizar', { 
+      state: { 
+        nombre: product.name, 
+        imagen: product.image || '/placeholder-product.png' 
+      } 
+    });
   };
 
   const calculateAverageRating = () => {
@@ -334,6 +390,18 @@ const ProductsReview = () => {
                     Agregar al carrito
                   </button>
                 </div>
+
+                {/* Botones de Personalizar y Agregar Reseña - En la misma línea */}
+                {!isDistribuidor && (
+                  <div className="secondary-actions">
+                    <button className="customize-btn" onClick={handleCustomize}>
+                       Personalizar Producto
+                    </button>
+                    <button className="add-review-btn-inline" onClick={handleAddReview}>
+                      + Agregar Reseña
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -342,9 +410,7 @@ const ProductsReview = () => {
             <div className="reviews-column">
               <div className="reviews-header">
                 <h2>Reseñas del Producto</h2>
-                <button className="add-review-btn" onClick={handleAddReview}>
-                  + Agregar Reseña
-                </button>
+                {/* Botón removido de aquí - ahora está arriba */}
               </div>
 
               <div className="reviews-stats">
@@ -355,12 +421,13 @@ const ProductsReview = () => {
                 <div className="total-reviews">({reviews.length} Reviews)</div>
               </div>
 
-              {showReviewForm && (
+              {showReviewForm && !isDistribuidor && (
                 <div className="review-form-wrapper">
                   <ReviewForm
                     productId={id}
                     onClose={() => setShowReviewForm(false)}
                     onReviewAdded={() => {
+                      toast.success("¡Reseña agregada exitosamente!");
                       loadReviews();
                       setShowReviewForm(false);
                     }}

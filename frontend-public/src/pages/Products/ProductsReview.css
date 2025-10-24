@@ -434,7 +434,8 @@
 }
 
 .quantity-btn:hover:not(:disabled) {
-  background: rgba(26, 26, 58, 0.1);
+ background: rgba(26, 26, 58, 0.05) !important; /* Hover sutil */
+  transform: scale(1.1) !important;
 }
 
 .quantity-btn:disabled {
@@ -450,10 +451,12 @@
   font-weight: 600;
   color: var(--text-dark);
   padding: 0;
-  border: 1px solid #e0e0e0;
+  border: none !important;
   border-radius: 6px;
   user-select: none;
-  background: transparent;
+   background: transparent !important;
+  font-weight: 600 !important;
+  min-width: 40px !important;
 }
 
 /* Estilos para los botones "Agregar al carrito" y "Personalizar" */
@@ -474,7 +477,7 @@
   background-color: #333366;
 }
 
-/* Botones inline (Add to Cart y Buy Now) */
+/* Botones inline */
 .add-to-cart-btn-inline {
   flex: 1;
   min-width: 140px;
@@ -1316,4 +1319,128 @@
 
 .product-detail-container {
   animation: fadeIn 0.5s ease-out;
+}
+
+
+.secondary-actions {
+  display: flex;
+  gap: 50px; 
+  margin-top: 12px;
+  width: 100%;
+}
+
+/* BOTÓN PERSONALIZAR - MÁS ANCHO (60%) */
+.customize-btn-wider {
+ flex: 1; /* Menos ancho que personalizar */
+  padding: 15px 20px;
+  background: white;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  margin-top: 0;
+}
+
+.customize-btn-wider:hover {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26, 26, 58, 0.2);
+}
+
+/* BOTÓN AGREGAR RESEÑA - MÁS ESTRECHO (40%) */
+.add-review-btn-inline {
+  flex: 1; /* Menos ancho que personalizar */
+  padding: 15px 20px;
+  background: white;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  margin-top: 0;
+}
+
+.add-review-btn-inline:hover:not(.disabled) {
+  background: var(--primary-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26, 26, 58, 0.2);
+}
+
+/* BOTÓN DESHABILITADO - Cuando ya agregó reseña */
+.add-review-btn-inline.disabled {
+  background: #e8e8e8;
+  color: #999;
+  border-color: #d0d0d0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.add-review-btn-inline:disabled {
+  background: #e8e8e8;
+  color: #999;
+  border-color: #d0d0d0;
+  cursor: not-allowed;
+  opacity: 0.7;
+  transform: none;
+}
+
+/* MOSTRAR RESEÑA DEL USUARIO */
+.user-review-display {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f0f8ff;
+  border-radius: 12px;
+  border: 2px solid #b3d9ff;
+}
+
+.user-review-display h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0 0 10px 0;
+}
+
+/* Responsive para botones secundarios */
+@media (max-width: 768px) {
+  .secondary-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .customize-btn-wider,
+  .add-review-btn-inline {
+    flex: 1; /* Mismo ancho en móvil */
+    padding: 12px 20px;
+    font-size: 14px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .customize-btn-wider,
+  .add-review-btn-inline {
+    padding: 10px 18px;
+    font-size: 13px;
+  }
+
+  .user-review-display {
+    padding: 12px;
+  }
+
+  .user-review-display h4 {
+    font-size: 13px;
+  }
 }

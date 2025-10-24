@@ -1,9 +1,10 @@
-import React, { useState } from "react";  
+import React, { useState, useEffect } from "react";  
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { Package, Coffee, Droplet, CheckCircle } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../../context/useAuth";
 import "./SeleccionDeGel.css";
 
 const steps = ["Seleccionar Componentes", "Confirmación", "Producto Final"];
@@ -12,9 +13,53 @@ const saboresPorDefecto = ["Banano", "Mora", "Limón", "Manzana", "Piña", "Fram
 export default function ProductCustomizer() {
   const { state } = useLocation(); // nombre e imagen del producto
   const navigate = useNavigate();
+  const { isAuthenticated, user, loading: authLoading, checkSession } = useAuthContext();
 
   const [step, setStep] = useState(1);
   const [selection, setSelection] = useState({ carbohidratos: "", cafeina: "", sabor: "" });
+  const [isChecking, setIsChecking] = useState(true);
+
+  // Verificar si el usuario es distribuidor
+  const isDistribuidor = user?.role === "distributor";
+
+  // Verificar autenticación y rol al montar el componente
+  useEffect(() => {
+    const verificarAcceso = async () => {
+      if (authLoading) {
+        return; // Esperar a que termine de cargar
+      }
+
+      if (!isAuthenticated || !user) {
+        // Intentar verificar sesión
+        try {
+          await checkSession();
+        } catch (error) {
+          console.error("Error verificando sesión:", error);
+        }
+      }
+
+      setIsChecking(false);
+    };
+
+    verificarAcceso();
+  }, [isAuthenticated, user, authLoading, checkSession]);
+
+  // Redirigir si es distribuidor
+  useEffect(() => {
+    if (!isChecking && !authLoading) {
+      if (!isAuthenticated || !user) {
+        toast.error("Debes iniciar sesión para personalizar productos");
+        setTimeout(() => navigate("/login"), 1500);
+        return;
+      }
+
+      if (isDistribuidor) {
+        toast.error("Los distribuidores no pueden personalizar productos");
+        setTimeout(() => navigate("/product"), 1500);
+        return;
+      }
+    }
+  }, [isChecking, authLoading, isAuthenticated, user, isDistribuidor, navigate]);
 
   const handleSelect = (key, value) => {
     setSelection({ ...selection, [key]: value });
@@ -45,6 +90,33 @@ export default function ProductCustomizer() {
     navigate('/carrito'); // redirige al carrito
   };
 
+  // Mostrar loading mientras verifica
+  if (isChecking || authLoading) {
+    return (
+      <div className="contenedorPersonalizar">
+        <div className="pasoPersonalizar">
+          <h2>Verificando acceso...</h2>
+          <p>Por favor espera un momento</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si es distribuidor, mostrar mensaje de acceso denegado
+  if (isDistribuidor) {
+    return (
+      <div className="contenedorPersonalizar">
+        <div className="pasoPersonalizar">
+          <h2>Acceso Restringido</h2>
+          <p>Los distribuidores no tienen acceso a la personalización de productos.</p>
+          <div className="botonesPersonalizar">
+            <button onClick={() => navigate("/product")}>Volver a Productos</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="contenedorPersonalizar">
       <AnimatePresence mode="wait">
@@ -61,7 +133,7 @@ export default function ProductCustomizer() {
               <div className="opcionesPersonalizar">
                 {["18g","22g","30g"].map(val => (
                   <motion.button key={val} whileTap={{scale:0.9}}
-                    className={selection.carbohidratos===val?"selected":""}
+                    className={`botonOpcionPersonalizar ${selection.carbohidratos===val?"selected":""}`}
                     onClick={()=>handleSelect("carbohidratos",val)}>{val}</motion.button>
                 ))}
               </div>
@@ -69,7 +141,7 @@ export default function ProductCustomizer() {
               <div className="opcionesPersonalizar">
                 {["25mg","50mg","75mg","Sin cafeína"].map(val => (
                   <motion.button key={val} whileTap={{scale:0.9}}
-                    className={selection.cafeina===val?"selected":""}
+                    className={`botonOpcionPersonalizar ${selection.cafeina===val?"selected":""}`}
                     onClick={()=>handleSelect("cafeina",val)}>{val}</motion.button>
                 ))}
               </div>
@@ -77,7 +149,7 @@ export default function ProductCustomizer() {
               <div className="opcionesPersonalizar">
                 {saboresPorDefecto.map(val => (
                   <motion.button key={val} whileTap={{scale:0.9}}
-                    className={selection.sabor===val?"selected":""}
+                    className={`botonOpcionPersonalizar ${selection.sabor===val?"selected":""}`}
                     onClick={()=>handleSelect("sabor",val)}>{val}</motion.button>
                 ))}
               </div>

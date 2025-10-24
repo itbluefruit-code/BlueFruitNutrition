@@ -6,8 +6,11 @@ import { useAuthContext } from "../../context/useAuth";
 import "./Nav.css";
 
 const Nav = () => {
-  const { isAuthenticated } = useAuthContext();
+  const { isAuthenticated, user } = useAuthContext();
   const location = useLocation();
+
+  // Verificar si el usuario es distribuidor
+  const isDistribuidor = user?.role === "distributor";
 
   return (
     <nav className="inwood-navbar">
@@ -23,14 +26,19 @@ const Nav = () => {
               Inicio
             </Link>
           </li>
-          <li>
-            <Link
-              to="/sobre-nosotros"
-              className={location.pathname === "/sobre-nosotros" ? "active" : ""}
-            >
-              Sobre Nosotros
-            </Link>
-          </li>
+          
+          {/* Ocultar "Sobre Nosotros" para distribuidores */}
+          {!isDistribuidor && (
+            <li>
+              <Link
+                to="/sobre-nosotros"
+                className={location.pathname === "/sobre-nosotros" ? "active" : ""}
+              >
+                Sobre Nosotros
+              </Link>
+            </li>
+          )}
+
           <li>
             <Link
               to="/product"
@@ -52,6 +60,7 @@ const Nav = () => {
           )}
 
           {/* 
+          Suscripciones - comentado para todos los roles
           <li>
             <Link
               to="/suscripciones"

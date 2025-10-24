@@ -186,7 +186,7 @@ const ProductReviews = () => {
 
   const renderStars = (rating) => (
     [...Array(5)].map((_, i) => (
-      <Star key={i} className={`star ${i < rating ? 'filled' : 'empty'}`} size={16} />
+      <Star key={i} className={`star ${i < rating ? 'filled' : 'empty'}`} size={16} fill={i < rating ? '#fbbf24' : 'none'} color={i < rating ? '#fbbf24' : '#e0e0e0'} />
     ))
   );
 
@@ -296,6 +296,70 @@ const ProductReviews = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* RESEÑAS  */}
+          <div className="reviews-section">
+            <div className="reviews-container">
+              <div className="reviews-header">
+                <h2>Reseñas del Producto</h2>
+                <span className="reviews-count">
+                  {reviews.length} {reviews.length === 1 ? 'Reseña' : 'Reseñas'}
+                </span>
+              </div>
+
+              {reviews.length === 0 ? (
+                <div className="no-reviews-message">
+                  <p>No hay reseñas para este producto aún.</p>
+                </div>
+              ) : (
+                <div className="reviews-grid">
+                  {reviews.map((review) => (
+                    <div key={review._id} className="review-card-admin">
+                      <div className="review-card-header">
+                        <div className="reviewer-info">
+                          <div className="reviewer-avatar">
+                            {review.idClient?.name?.charAt(0)?.toUpperCase() || 'U'}
+                          </div>
+                          <div className="reviewer-details">
+                            <h4 className="reviewer-name">
+                              {review.idClient?.name || 'Usuario Anónimo'}
+                            </h4>
+                            <div className="review-rating">
+                              {renderStars(review.rating)}
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          className="delete-review-btn"
+                          onClick={() => handleDeleteReview(review._id)}
+                          disabled={deletingReview === review._id}
+                          title="Eliminar reseña"
+                        >
+                          {deletingReview === review._id ? (
+                            <span className="spinner-small"></span>
+                          ) : (
+                            <X size={22} strokeWidth={2.5} />
+                          )}
+                        </button>
+                      </div>
+                      
+                      <div className="review-comment">
+                        {review.comment}
+                      </div>
+                      
+                      <div className="review-date">
+                        {new Date(review.createdAt).toLocaleDateString('es-ES', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

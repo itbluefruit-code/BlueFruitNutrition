@@ -39,7 +39,7 @@ const sendContactEmail = async ({ nombre, email, celular, mensaje }) => {
           <div style="background: #f1f4f9; padding: 20px; border-radius: 10px; margin: 20px 0;">
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
-                <td style="padding: 10px 0; font-weight: bold; color: #001a4d; width: 120px;">👤 Nombre:</td>
+                <td style="padding: 10px 0; font-weight: bold; color: #001a4d; width: 120px;"> Nombre:</td>
                 <td style="padding: 10px 0; color: #333;">${nombre}</td>
               </tr>
               <tr>
@@ -47,7 +47,7 @@ const sendContactEmail = async ({ nombre, email, celular, mensaje }) => {
                 <td style="padding: 10px 0;"><a href="mailto:${email}" style="color: #0056b3; text-decoration: none;">${email}</a></td>
               </tr>
               <tr>
-                <td style="padding: 10px 0; font-weight: bold; color: #001a4d;">📱 Celular:</td>
+                <td style="padding: 10px 0; font-weight: bold; color: #001a4d;"> Celular:</td>
                 <td style="padding: 10px 0; color: #333;">${celular}</td>
               </tr>
             </table>
@@ -55,7 +55,7 @@ const sendContactEmail = async ({ nombre, email, celular, mensaje }) => {
 
           <div style="background: #ffffff; padding: 20px; border-left: 4px solid #0056b3; border-radius: 6px; margin: 20px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
             <h3 style="color: #001a4d; margin-top: 0; display: flex; align-items: center;">
-              💬 Mensaje del Cliente
+               Mensaje del Cliente
             </h3>
             <div style="background: #f1f4f9; padding: 15px; border-radius: 5px; line-height: 1.6; white-space: pre-wrap; color: #333;">
               ${mensaje}

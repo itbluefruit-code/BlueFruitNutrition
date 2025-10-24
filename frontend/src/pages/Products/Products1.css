@@ -139,14 +139,57 @@ body {
   -webkit-box-orient: vertical;
 }
 
-.product-flavor,
-.product-price {
-  font-size: 14px;
+/* SABORES MEJORADOS */
+.product-flavor {
+  font-size: 13px;
   color: #555;
-  margin: 4px 0;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.product-flavor strong {
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.flavor-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.flavor-tag {
+  background: linear-gradient(135deg, #0f0f1c 0%, #1a1a2e 100%);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 11px;
+  font-weight: 500;
+  display: inline-block;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(15, 15, 28, 0.25);
+  transition: all 0.25s ease;
+  line-height: 1.4;
+}
+
+.flavor-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(15, 15, 28, 0.4);
+  background: linear-gradient(135deg, #1a1a2e 0%, #252535 100%);
 }
 
 .product-price {
+  font-size: 14px;
+  color: #555;
+  margin: 8px 0 4px 0;
   font-weight: 600;
   color: var(--primary);
 }
@@ -339,9 +382,18 @@ body {
     font-size: 13px;
   }
 
-  .product-flavor,
-  .product-price {
+  .product-flavor {
     font-size: 12px;
+    margin: 10px 0;
+  }
+
+  .flavor-tag {
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+
+  .product-price {
+    font-size: 13px;
   }
 
   .product-buttons {
@@ -391,6 +443,21 @@ body {
   }
 
   .product-description {
+    font-size: 12px;
+  }
+
+  .product-flavor {
+    font-size: 11px;
+    margin: 8px 0;
+  }
+
+  .flavor-tag {
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 12px;
+  }
+
+  .product-price {
     font-size: 12px;
   }
 }
