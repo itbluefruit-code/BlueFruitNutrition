@@ -24,13 +24,12 @@ adminVerificationController.sendCode = async (req, res) => {
   );
 
   // Detectar entorno
-  const isProduction = process.env.NODE_ENV === "production";
 
   // Guardar el token temporal en cookie
   res.cookie("adminVerificationToken", verificationToken, {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "None" : "Lax",
+    secure: true,
+    sameSite: "None",
     maxAge: 5 * 60 * 1000 // 5 minutos
   });
 
@@ -108,13 +107,12 @@ adminVerificationController.verifyCode = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    const isProduction = process.env.NODE_ENV === "production";
 
     // Guardar token de sesión en cookie
     res.cookie("authToken", sessionToken, {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "None" : "Lax",
+      secure: true,
+      sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000 // 1 día
     });
 

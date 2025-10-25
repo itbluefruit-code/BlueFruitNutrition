@@ -88,7 +88,7 @@ loginController.login = async (req, res) => {
     };
 
     const token = jsonwebtoken.sign(
-      tokenPayload,
+      tokenPayload,  
       config.JWT.secret,
       { expiresIn: config.JWT.expiresIn }
     );
