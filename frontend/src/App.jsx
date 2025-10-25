@@ -7,8 +7,12 @@ import { AuthProvider } from "./context/useAuth";
 
 // Components
 import Nav from './components/Nav/Nav';
+
+
+import ProtectedRoute from './components/PrivateRoute/ProtectedRoute';
 import Error404Private from './components/NotFound/NotFoundPrivate.jsx';
 import Location from "./components/Maps/Maps.jsx"; 
+
 
 // Pages - Login (público)
 import RequestCode from './pages/RecoveryPassword/RequestCode';
@@ -27,7 +31,7 @@ import UserForm from "./pages/Users/UserForm";
 import PerfilAdmin from "./pages/AdminPorfile/PerfilAdmin";
 import AddProducts from "./pages/AddProducts/AddProduct.jsx";
 import ProductsReviews from "./pages/Products/ProductsReview.jsx";
-import Login from "./pages/Login/Login.jsx";
+
 
 // Context para temas
 export const ThemeContext = React.createContext(null);
@@ -58,30 +62,33 @@ function AppContent() {
 
       {!shouldHideNav && <Nav />}
 
+      {/* main-content con clase condicional para centrado */}
       <div className={`main-content ${shouldHideNav ? "no-sidebar" : ""}`}>
         <Routes>
           {/* Rutas públicas */}
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<Navigate to="/homep" replace />} />
+
           <Route path="/enviar-codigo" element={<RequestCode />} />
           <Route path="/verificar-codigo" element={<VerifyCode />} />
           <Route path="/nueva-contraseña" element={<NewPassword />} />
 
-          {/* Rutas desprotegidas (antes protegidas) */}
+          {/* Rutas protegidas */}
+          <Route path="/home" element={<ProtectedRoute><HomeP /></ProtectedRoute>} />
+          <Route path="/homep" element={<ProtectedRoute><HomeP /></ProtectedRoute>} />
+          <Route path="/productos1" element={<ProtectedRoute><Products1 /></ProtectedRoute>} />
+          <Route path="/ordenes" element={<ProtectedRoute><Ordenes /></ProtectedRoute>} />
+          <Route path="/ordenes/:id" element={<ProtectedRoute><ResumenOrden /></ProtectedRoute>} />
+          <Route path="/ventas" element={<ProtectedRoute><Ventas /></ProtectedRoute>} />
+          <Route path="/suscripciones" element={<ProtectedRoute><Suscripciones /></ProtectedRoute>} />
+          <Route path="/usuarios" element={<ProtectedRoute><UsersList /></ProtectedRoute>} />
+          <Route path="/users/edit/:type/:id" element={<ProtectedRoute><UserForm /></ProtectedRoute>} />
+          <Route path="/perfil" element={<ProtectedRoute><PerfilAdmin /></ProtectedRoute>} />
+          <Route path="/addProduct" element={<ProtectedRoute><AddProducts /></ProtectedRoute>} />
+          <Route path="/product/:id" element={<ProtectedRoute><ProductsReviews /></ProtectedRoute>} />
+          <Route path="/location" element={<ProtectedRoute><Location /></ProtectedRoute>} />
 
-          <Route path="/homep" element={<HomeP />} />
-          <Route path="/productos1" element={<Products1 />} />
-          <Route path="/ordenes" element={<Ordenes />} />
-          <Route path="/ordenes/:id" element={<ResumenOrden />} />
-          <Route path="/ventas" element={<Ventas />} />
-          <Route path="/suscripciones" element={<Suscripciones />} />
-          <Route path="/usuarios" element={<UsersList />} />
-          <Route path="/users/edit/:type/:id" element={<UserForm />} />
-          <Route path="/perfil" element={<PerfilAdmin />} />
-          <Route path="/addProduct" element={<AddProducts />} />
-          <Route path="/product/:id" element={<ProductsReviews />} />
-          <Route path="/location" element={<Location />} />
 
-          {/* 404 */}
+          {/* 404 admin */}
           <Route path="*" element={<Error404Private />} />
         </Routes>
       </div>

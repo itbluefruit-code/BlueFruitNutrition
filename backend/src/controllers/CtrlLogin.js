@@ -94,9 +94,9 @@ loginController.login = async (req, res) => {
     );
 
  res.cookie("authToken", token, {
-  httpOnly: true,
-  secure: false, // ✅ local
-  sameSite: "Lax", // ✅ permite login local
+  httpOnly: true,   
+  secure: true, // ✅ local
+  sameSite: "None", // ✅ permite login local
   maxAge: 24 * 60 * 60 * 1000,
 });
 
