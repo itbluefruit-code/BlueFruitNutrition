@@ -1,0 +1,102 @@
+.privacy-page {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 0 1rem;
+  font-family: 'Outfit', sans-serif;
+  color: #1a1f54;
+  line-height: 1.8;
+}
+
+.privacy-page h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0C133F;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.privacy-date {
+  display: block;
+  text-align: center;
+  font-size: 1rem;
+  color: #475569;
+  margin-bottom: 2rem;
+}
+
+.privacy-page h2 {
+  font-size: 1.6rem;
+  color: #0C133F;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 0.3rem;
+}
+
+.privacy-page p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.privacy-page a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.privacy-page a:hover {
+  color: #2563eb;
+}
+
+.privacy-page ul, .privacy-page ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.privacy-page table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.privacy-page table, th, td {
+  border: 1px solid #cbd5e1;
+}
+
+.privacy-page th, td {
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.privacy-page th {
+  background-color: #e0e7ff;
+  color: #0C133F;
+}
+
+.privacy-page td {
+  background-color: #f8fafc;
+  color: #1a1f54;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .privacy-page h1 {
+    font-size: 2rem;
+  }
+  .privacy-page h2 {
+    font-size: 1.4rem;
+  }
+  .privacy-page table, th, td {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .privacy-page h1 {
+    font-size: 1.8rem;
+  }
+  .privacy-page h2 {
+    font-size: 1.2rem;
+  }
+  .privacy-page table, th, td {
+    font-size: 0.85rem;
+  }
+}

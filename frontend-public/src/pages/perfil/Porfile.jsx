@@ -2,124 +2,104 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import {
-  FiEdit,
+  FiEdit2,
   FiSave,
   FiLogOut,
   FiUser,
   FiMail,
   FiPhone,
-  FiPackage,
-  FiHome,
+  FiMapPin,
+  FiCamera,
 } from "react-icons/fi";
 import "./Portfile.css";
 
 const Perfil = () => {
   const [userData, setUserData] = useState(null);
-  const [orders, setOrders] = useState([]);
-  const [addresses, setAddresses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({});
-  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    avatar: "",
+  });
 
-  // Backend corre en puerto 4000
+  const navigate = useNavigate();
   const API_URL = "https://bluefruitnutrition-production.up.railway.app/api";
 
-  // Verifica sesión activa
-const checkSession = async () => {
-  try {
-    const res = await fetch(`${API_URL}/session/auth/session`, {
-      method: "GET",
-      credentials: "include",
-    });
-    if (!res.ok) throw new Error("Sesión inválida");
-    const data = await res.json();
-    console.log("📋 Datos del backend:", data);
-      console.log("🆔 ID:", data.id);
-      console.log("👤 Nombre:", data.name);
-      
+  // Obtener sesión
+  const checkSession = async () => {
+    try {
+      const res = await fetch(`${API_URL}/session/auth/session`, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Sesión inválida");
+      const data = await res.json();
+
       setUserData(data);
       setFormData({
         name: data.name || "",
         email: data.email || "",
         phone: data.phone || "",
         address: data.address || "",
+        avatar: data.avatar || "",
       });
-      
-      // Solo cargar órdenes y direcciones si no es admin
-      if (data.role !== "admin") {
-        fetchOrders(data.id);
-        fetchAddresses(data.id);
-      }
     } catch (error) {
-      console.error("Error en sesión:", error);
+      console.error(error);
       navigate("/login");
     } finally {
       setLoading(false);
     }
   };
 
-  // Trae historial de órdenes
-  const fetchOrders = async (userId) => {
-    if (!userId) {
-      setOrders([]);
-      return;
-    }
-    
+  // Cambios de inputs
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Subir imagen
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("file", file);
+    form.append("upload_preset", "YOUR_CLOUDINARY_PRESET"); // Cambiar por tu preset
+
     try {
-      const res = await fetch(`${API_URL}/ordenes/user/${userId}`, {
-        credentials: "include",
-      });
-      if (!res.ok) {
-        if (res.status === 404) {
-          setOrders([]);
-          return;
-        }
-        throw new Error("No se pudo cargar historial");
-      }
+      const res = await fetch(
+        "https://api.cloudinary.com/v1_1/YOUR_CLOUDINARY_NAME/image/upload",
+        { method: "POST", body: form }
+      );
       const data = await res.json();
-      setOrders(data);
+      setFormData((prev) => ({ ...prev, avatar: data.secure_url }));
+      Swal.fire({
+        icon: "success",
+        title: "Imagen subida",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (error) {
-      console.error("Error cargando órdenes:", error);
-      setOrders([]);
+      console.error(error);
+      Swal.fire({ icon: "error", title: "Error al subir imagen" });
     }
   };
 
-  // Trae direcciones guardadas
-  const fetchAddresses = async (userId) => {
-    if (!userId) {
-      setAddresses([]);
-      return;
-    }
-    
-    try {
-      const res = await fetch(`${API_URL}/direcciones/user/${userId}`, {
-        credentials: "include",
-      });
-      if (!res.ok) {
-        if (res.status === 404) {
-          setAddresses([]);
-          return;
-        }
-        throw new Error("No se pudieron cargar direcciones");
-      }
-      const data = await res.json();
-      setAddresses(data);
-    } catch (error) {
-      console.error("Error cargando direcciones:", error);
-      setAddresses([]);
-    }
-  };
-
-  // Guardar perfil editado
+  // Guardar perfil
   const handleSaveProfile = async () => {
     const confirm = await Swal.fire({
       title: "¿Guardar cambios?",
+      text: "Se actualizará tu información de perfil",
       icon: "question",
       showCancelButton: true,
-      confirmButtonText: "Sí",
+      confirmButtonText: "Sí, guardar",
       cancelButtonText: "Cancelar",
+      confirmButtonColor: "#1b1b3c",
+      cancelButtonColor: "#6b7280",
     });
+
     if (!confirm.isConfirmed) return;
 
     try {
@@ -129,167 +109,198 @@ const checkSession = async () => {
         credentials: "include",
         body: JSON.stringify(formData),
       });
-      if (!res.ok) throw new Error("Error al actualizar perfil");
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.message || "Error al actualizar perfil");
+      }
+
       const updated = await res.json();
       setUserData(updated);
       setEditing(false);
-      Swal.fire({ icon: "success", title: "Perfil actualizado", timer: 1500 });
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Perfil actualizado!",
+        timer: 2000,
+        showConfirmButton: false,
+      });
     } catch (error) {
-      Swal.fire({ icon: "error", title: error.message });
+      Swal.fire({ icon: "error", title: "Error", text: error.message });
     }
+  };
+
+  // Cancelar edición
+  const handleCancel = () => {
+    setFormData({
+      name: userData.name || "",
+      email: userData.email || "",
+      phone: userData.phone || "",
+      address: userData.address || "",
+      avatar: userData.avatar || "",
+    });
+    setEditing(false);
   };
 
   // Logout
   const handleLogout = async () => {
     const confirm = await Swal.fire({
       title: "¿Cerrar sesión?",
+      text: "Tendrás que iniciar sesión nuevamente",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Sí, salir",
       cancelButtonText: "Cancelar",
+      confirmButtonColor: "#1b1b3c",
+      cancelButtonColor: "#6b7280",
     });
     if (!confirm.isConfirmed) return;
 
     try {
-      const res = await fetch(`${API_URL}/logout`, {
-  method: "POST",
-  credentials: "include",
-});
-      
-      // Limpiar estado local
+      await fetch(`${API_URL}/logout`, { method: "POST", credentials: "include" });
       setUserData(null);
-      setOrders([]);
-      setAddresses([]);
-      setFormData({});
-      
-      if (res.ok) {
-        await Swal.fire({ 
-          icon: "success", 
-          title: "Sesión cerrada", 
-          timer: 1500,
-          showConfirmButton: false 
-        });
-      }
-      
       navigate("/");
     } catch (error) {
-      console.error("Error en logout:", error);
+      console.error(error);
       navigate("/");
     }
   };
-
-  const handleInputChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   useEffect(() => {
     checkSession();
   }, []);
 
-  if (loading) return <p className="loading">Cargando perfil...</p>;
+  if (loading) {
+    return (
+      <div className="perfil-loading">
+        <div className="spinner"></div>
+        <p>Cargando perfil...</p>
+      </div>
+    );
+  }
+
   if (!userData) return null;
 
   return (
-    <div className="perfil-page">
-      <div className="perfil-left">
-        <div className="perfil-card">
-          <h2>
-            <FiUser /> Mi Perfil
-          </h2>
-          <div className="perfil-fields">
-            <label>
-              <FiUser /> Nombre
-            </label>
-            <input
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              disabled={!editing}
-            />
+    <div className="perfil-container">
+      <div className="perfil-wrapper">
+        {/* Header */}
+        <div className="perfil-header">
+          <div className="perfil-header-content">
+            <div className="perfil-avatar-section">
+              <div className="perfil-avatar">
+                {formData.avatar ? (
+                  <img
+                    src={formData.avatar}
+                    alt="Avatar"
+                    style={{ width: "100%", height: "100%", borderRadius: "50%" }}
+                  />
+                ) : (
+                  <FiUser size={48} color="#fff" />
+                )}
+              </div>
+              {editing && (
+                <label className="avatar-upload-btn">
+                  <FiCamera />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handleImageUpload}
+                  />
+                </label>
+              )}
+            </div>
+            <h1>{formData.name || "Usuario"}</h1>
+            <p className="perfil-email">{formData.email}</p>
+            <span className="perfil-badge">
+              {userData.role === "admin" ? "Administrador" : "Cliente"}
+            </span>
+          </div>
+        </div>
 
-            <label>
-              <FiMail /> Email
-            </label>
-            <input name="email" value={formData.email} disabled />
+        {/* Formulario */}
+        <div className="perfil-section-header">
+  <h2>Información Personal</h2>
+  {!editing ? (
+    <button className="btn-edit-header" onClick={() => setEditing(true)}>
+      <FiEdit2 size={16}/> Editar perfil
+    </button>
+  ) : (
+    <div className="edit-actions-header">
+      <button className="btn-cancel" onClick={handleCancel}>Cancelar</button>
+      <button className="btn-save-header" onClick={handleSaveProfile}>
+        <FiSave size={16}/> Guardar
+      </button>
+    </div>
+  )}
+</div>
+        <div className="perfil-section-content">
+          <div className="perfil-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="name">
+                  <FiUser className="input-icon" /> Nombre completo
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  disabled={!editing}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="email">
+                  <FiMail className="input-icon" /> Correo electrónico
+                </label>
+                <input id="email" name="email" type="email" value={formData.email} disabled />
+                <small className="input-hint">No se puede modificar el correo</small>
+              </div>
+            </div>
 
-            <label>
-              <FiPhone /> Teléfono
-            </label>
-            <input
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              disabled={!editing}
-            />
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="phone">
+                  <FiPhone className="input-icon" /> Teléfono
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  disabled={!editing}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="address">
+                  <FiMapPin className="input-icon" /> Dirección
+                </label>
+                <input
+                  id="address"
+                  name="address"
+                  type="text"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  disabled={!editing}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="perfil-actions">
-            {editing ? (
-              <button className="btn-save" onClick={handleSaveProfile}>
-                <FiSave /> Guardar
-              </button>
-            ) : (
-              <button className="btn-edit" onClick={() => setEditing(true)}>
-                <FiEdit /> Editar
-              </button>
-            )}
-            <button className="btn-logout" onClick={handleLogout}>
+          <div className="perfil-section-divider"></div>
+
+          {/* Zona de logout */}
+          <div className="perfil-danger-zone">
+            <h3>Zona de seguridad</h3>
+            <p>Administra tu sesión y acceso a la plataforma</p>
+            <button className="btn-logout-danger" onClick={handleLogout}>
               <FiLogOut /> Cerrar sesión
             </button>
           </div>
         </div>
-
-        {userData.role !== "admin" && (
-          <div className="perfil-card">
-            <h2>
-              <FiHome /> Mis Direcciones
-            </h2>
-            {addresses.length === 0 ? (
-              <p className="empty-orders">No tienes direcciones guardadas aún</p>
-            ) : (
-              addresses.map((dir) => (
-                <div key={dir._id} className="address-item">
-                  <div>
-                    <strong>{dir.alias || "Dirección guardada"}</strong>
-                    <p>{dir.direccionCompleta}</p>
-                    <small>
-                      {dir.departamento}, {dir.municipio}
-                    </small>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="perfil-right">
-        {userData.role !== "an" && (
-          <div className="orders-card">
-            <h2>
-              <FiPackage /> Historial de Órdenes
-            </h2>
-            {orders.length === 0 ? (
-              <p className="empty-orders">No hay órdenes aún</p>
-            ) : (
-              orders.map((order) => (
-                <div key={order._id} className="order-item">
-                  <div>
-                    <strong>Orden #{order._id.slice(-6)}</strong>
-                    <p>{new Date(order.createdAt).toLocaleDateString()}</p>
-                  </div>
-                  <div className="order-info">
-                    <span>Total: ${order.total.toFixed(2)}</span>
-                    <span
-                      className={`order-status ${order.status.toLowerCase()}`}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

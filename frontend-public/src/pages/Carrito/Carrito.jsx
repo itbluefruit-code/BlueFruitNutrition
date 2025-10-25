@@ -5,7 +5,29 @@ import "./Carrito.css";
 
 const Carrito = () => {
   const [productos, setProductos] = useState([]);
+  const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
+  const API_URL = "https://bluefruitnutrition-production.up.railway.app/api";
+
+  // Verificar sesión del usuario al cargar
+  useEffect(() => {
+    const verificarSesion = async () => {
+      try {
+        const res = await fetch(`${API_URL}/session/auth/session`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setUserData(data);
+        }
+      } catch (error) {
+        console.error("Error verificando sesión:", error);
+      }
+    };
+
+    verificarSesion();
+  }, []);
 
   useEffect(() => {
     const carritoGuardado = JSON.parse(localStorage.getItem("carrito")) || [];
@@ -36,12 +58,26 @@ const Carrito = () => {
     .toFixed(2);
 
   const irAMetodoDePago = async () => {
+    // Verificar si el usuario está logueado
+    if (!userData || !userData.id) {
+      await Swal.fire({
+        icon: "warning",
+        title: "Inicia sesión",
+        text: "Debes iniciar sesión para realizar una compra",
+        confirmButtonText: "Ir a login",
+        confirmButtonColor: "#0c133f",
+      });
+      navigate("/login");
+      return;
+    }
+
     const orden = {
+      userId: userData.id, // ✅ IMPORTANTE: Asociar la orden al usuario
       numeroOrden: `ORD-${Date.now()}`,
       fecha: new Date().toLocaleDateString(),
       total: parseFloat(total),
       items: productos.reduce((acc, p) => acc + p.cantidad, 0),
-      estado: "En proceso",
+      status: "Pendiente", // Cambié "estado" a "status" para consistencia
       productos: productos.map((p) => ({
         id: p.id.toString(),
         nombre: p.nombre,
@@ -51,39 +87,44 @@ const Carrito = () => {
     };
 
     try {
-      const response = await fetch(
-        "https://bluefruitnutrition-production.up.railway.app/api/ordenes",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orden),
-        }
-      );
+      const response = await fetch(`${API_URL}/ordenes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // ✅ Incluir cookies de sesión
+        body: JSON.stringify(orden),
+      });
 
       if (response.ok) {
+        const ordenCreada = await response.json();
+        
         await Swal.fire({
           icon: "success",
-          title: "¡Orden enviada!",
-          text: "Tu orden ha sido procesada correctamente",
+          title: "¡Orden creada!",
+          text: `Orden #${ordenCreada._id.slice(-6)} registrada correctamente`,
           confirmButtonText: "Continuar al pago",
           confirmButtonColor: "#4CAF50",
           timer: 3000,
           timerProgressBar: true,
         });
 
+        // Guardar datos para el proceso de pago
         const datosCompra = {
-          orden,
+          ordenId: ordenCreada._id, // ✅ ID de la orden creada
+          orden: ordenCreada,
           productos,
           total: parseFloat(total),
           fecha: new Date().toISOString(),
         };
         localStorage.setItem("datosCompra", JSON.stringify(datosCompra));
+        
+        // Navegar a método de pago
         navigate("/metodo");
       } else {
+        const error = await response.json();
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "No se pudo enviar la orden. Intenta nuevamente.",
+          text: error.message || "No se pudo crear la orden. Intenta nuevamente.",
           confirmButtonText: "Entendido",
           confirmButtonColor: "#f44336",
         });
@@ -103,6 +144,11 @@ const Carrito = () => {
   return (
     <div className="carrito-container">
       <h1>Tu Carrito</h1>
+      {userData && (
+        <p style={{ textAlign: "center", color: "#666", marginBottom: "1rem" }}>
+          Comprando como: <strong>{userData.name}</strong>
+        </p>
+      )}
       <div className="carrito">
         {productos.length === 0 ? (
           <div className="carrito-vacio">

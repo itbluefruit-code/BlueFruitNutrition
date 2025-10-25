@@ -32,6 +32,8 @@ import MetodoDePago from './pages/MetodoDePago/CheckoutPage';
 import Personalizar from './pages/Personalizar/SeleccionarGel/SeleccionDeGel';
 import Bill from './pages/Bill/Biil';
 import Perfil from "./pages/perfil/Porfile.jsx";
+import Terms from './pages/terms/terms.jsx';
+import Privacy from './pages/Privacy/Privacy.jsx';
 
 function AppContent() {
   const location = useLocation();
@@ -63,6 +65,8 @@ function AppContent() {
           <Route path="/contact" element={<Contact />} />
           <Route path="/suscripciones" element={<Suscripciones />} />
           <Route path="/chatbot" element={<ChatBot />} />
+          <Route path="/terminos" element={<Terms />} />
+          <Route path="/privacidad" element={<Privacy />} />
 
           {/* RUTAS DE AUTENTICACIÓN */}
           <Route path="/login" element={<Login />} />

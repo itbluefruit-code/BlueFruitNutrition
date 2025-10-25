@@ -1,5 +1,5 @@
 import { useState } from "react";
-import './RecoveryPassword.css'
+import './VerifyCode.css'; // Nuevo CSS más bonito
 
 export default function VerifyCode() {
   const [code, setCode] = useState("");
@@ -13,7 +13,6 @@ export default function VerifyCode() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, code }),
-    
     });
     const data = await res.json();
     setMessage(data.message);
@@ -23,34 +22,32 @@ export default function VerifyCode() {
   };
 
   return (
+    <div className="verify-container">
+      <div className="verify-wrapper">
+        <div className="verify-image">
+          <img src="/recuperar-contraseña.png" alt="Recuperar contraseña" />
+        </div>
 
-      <div className="contenedor">
-                <div className="wrapper">
-            <div className="imgrecovery">
-                <img src={"/recuperar-contraseña.png"} alt="" className="recovery-img"/>
-            </div>
-            <div className="recovery-card">
-          <h2 className="text-xl font-bold mb-4">¿Olvidaste tu contraseña?</h2>
-          <h4>Ingresa tus datos a continuación</h4>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="verify-card">
+          <h2>¿Olvidaste tu contraseña?</h2>
+          <h4>Ingresa el código que enviamos a tu correo</h4>
+
+          <form onSubmit={handleSubmit}>
             <input
               type="text"
-              placeholder="Codigo de verificación"
-              className="w-full p-2 border rounded"
+              placeholder="Código de verificación"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               required
             />
-            <button className="btnrecovery">
+            <button type="submit" className="verify-btn">
               Enviar código
             </button>
           </form>
-          </div>
-          </div>
-          {message && <p className="mt-4 text-green-600">{message}</p>}
+
+          {message && <p className="verify-message">{message}</p>}
         </div>
-
-
-   
+      </div>
+    </div>
   );
 }

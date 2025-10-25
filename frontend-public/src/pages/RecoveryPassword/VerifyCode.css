@@ -1,0 +1,153 @@
+/* Paleta aplicada: 
+   Azul oscuro: #0C133F
+   Azul grisáceo: #0C133F83
+   Negro: #000000
+   Blanco puro: #FFFFFF
+   Gris claro: #DCDCDC
+   Gris muy claro: #F5F5F5
+*/
+
+/* Fondo principal */
+.verify-container {
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, #0C133F, #FFFFFF);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Contenedor principal */
+.verify-wrapper {
+  display: flex;
+  background: #FFFFFF; /* Tarjeta blanca para contraste */
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  max-width: 850px;
+  width: 100%;
+  transition: transform 0.3s ease;
+}
+
+.verify-wrapper:hover {
+  transform: translateY(-3px);
+}
+
+/* Imagen lateral */
+.verify-image {
+  flex: 1;
+  background: #F5F5F5; /* Gris muy claro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.verify-image img {
+  width: 80%;
+  max-width: 320px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Tarjeta de formulario */
+.verify-card {
+  flex: 1;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  background: #F5F5F5; /* Gris muy claro */
+}
+
+.verify-card h2 {
+  color: #0C133F; /* Azul oscuro */
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.verify-card h4 {
+  color: #000000; /* Negro */
+  font-weight: 500;
+  margin-bottom: 2rem;
+}
+
+/* Inputs */
+.verify-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.verify-card input {
+  padding: 0.9rem 1rem;
+  border: 1px solid #DCDCDC; /* Gris claro */
+  border-radius: 0.6rem;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+}
+
+.verify-card input:focus {
+  outline: none;
+  border-color: #0C133F; /* Azul oscuro */
+  box-shadow: 0 0 0 3px rgba(12, 19, 63, 0.15); /* Azul grisáceo semitransparente */
+}
+
+/* Botón */
+.verify-btn {
+  background: #0C133F; /* Azul oscuro */
+  color: #FFFFFF; /* Blanco puro */
+  border: none;
+  border-radius: 0.6rem;
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.verify-btn:hover {
+  background: #0C133F83; /* Azul grisáceo semitransparente */
+  transform: scale(1.03);
+}
+
+/* Mensaje */
+.verify-message {
+  margin-top: 1rem;
+  text-align: center;
+  color: #0C133F; /* Azul oscuro */
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .verify-wrapper {
+    flex-direction: column;
+    max-width: 95%;
+  }
+
+  .verify-card {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .verify-image {
+    padding: 1.5rem;
+    background: none;
+  }
+
+  .verify-image img {
+    width: 65%;
+  }
+}

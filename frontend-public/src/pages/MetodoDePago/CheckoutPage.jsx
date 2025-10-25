@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../context/useAuth";
+import Swal from "sweetalert2";
 import "./CheckoutPage.css";
 
 // Objeto completo con todos los 14 departamentos y 262 municipios de El Salvador
@@ -297,6 +298,7 @@ const departamentosMunicipios = {
 const AddressForm = () => {
   const { user, loading } = useAuthContext();
   const navigate = useNavigate();
+  const API_URL = "https://bluefruitnutrition-production.up.railway.app/api";
 
   const [selectedDept, setSelectedDept] = useState("");
   const [selectedMunicipio, setSelectedMunicipio] = useState("");
@@ -304,6 +306,7 @@ const AddressForm = () => {
   const [referencia, setReferencia] = useState("");
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [guardandoDireccion, setGuardandoDireccion] = useState(false);
 
   const municipios = selectedDept ? departamentosMunicipios[selectedDept] || [] : [];
 
@@ -312,7 +315,7 @@ const AddressForm = () => {
       if (user && user.id) {
         try {
           const tipoUsuario = user.role === 'customer' ? 'customers' : 'distributors';
-          const response = await fetch(`https://bluefruitnutrition-production.up.railway.app/api/${tipoUsuario}/${user.id}`, {
+          const response = await fetch(`${API_URL}/${tipoUsuario}/${user.id}`, {
             credentials: 'include'
           });
 
@@ -344,29 +347,78 @@ const AddressForm = () => {
 
   const handleBack = () => navigate("/carrito");
 
-  const handleContinuar = () => {
-    if (selectedDept && selectedMunicipio && direccion.trim() && nombre.trim()) {
-      const datosEnvio = {
-        nombre,
-        telefono,
-        departamento: selectedDept,
-        municipio: selectedMunicipio,
-        direccion,
-        referencia,
-        direccionCompleta: `${direccion}, ${selectedMunicipio}, ${selectedDept.replace(/([A-Z])/g, " $1").trim()}`,
-        fechaRegistro: new Date().toISOString()
-      };
+  const handleContinuar = async () => {
+    if (!selectedDept || !selectedMunicipio || !direccion.trim() || !nombre.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Campos incompletos",
+        text: "Por favor completa todos los campos obligatorios",
+        confirmButtonColor: "#0c133f"
+      });
+      return;
+    }
 
+    const direccionCompleta = `${direccion}, ${selectedMunicipio}, ${selectedDept.replace(/([A-Z])/g, " $1").trim()}`;
+
+    const datosEnvio = {
+      userId: user.id, // ✅ Asociar dirección al usuario
+      alias: `Dirección principal - ${selectedMunicipio}`,
+      nombre,
+      telefono,
+      departamento: selectedDept,
+      municipio: selectedMunicipio,
+      direccion,
+      referencia,
+      direccionCompleta,
+      fechaRegistro: new Date().toISOString()
+    };
+
+    try {
+      setGuardandoDireccion(true);
+
+      // ✅ Guardar dirección en la base de datos
+      const response = await fetch(`${API_URL}/direcciones`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(datosEnvio)
+      });
+
+      if (response.ok) {
+        const direccionGuardada = await response.json();
+        
+        // Guardar en localStorage para el proceso de pago
+        localStorage.setItem('datosEnvio', JSON.stringify(datosEnvio));
+
+        // Actualizar datosCompra con la dirección
+        const datosCompra = JSON.parse(localStorage.getItem('datosCompra') || '{}');
+        const datosCompraActualizados = {
+          ...datosCompra,
+          datosEnvio,
+          direccionId: direccionGuardada._id
+        };
+        localStorage.setItem('datosCompra', JSON.stringify(datosCompraActualizados));
+
+        navigate("/pay");
+      } else {
+        throw new Error("No se pudo guardar la dirección");
+      }
+    } catch (error) {
+      console.error("Error guardando dirección:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo guardar la dirección, pero puedes continuar con el pago",
+        confirmButtonColor: "#0c133f"
+      });
+      
+      // Permitir continuar aunque falle el guardado
       localStorage.setItem('datosEnvio', JSON.stringify(datosEnvio));
-
       const datosCompra = JSON.parse(localStorage.getItem('datosCompra') || '{}');
-      const datosCompraActualizados = {
-        ...datosCompra,
-        datosEnvio
-      };
-      localStorage.setItem('datosCompra', JSON.stringify(datosCompraActualizados));
-
+      localStorage.setItem('datosCompra', JSON.stringify({...datosCompra, datosEnvio}));
       navigate("/pay");
+    } finally {
+      setGuardandoDireccion(false);
     }
   };
 
@@ -478,12 +530,12 @@ const AddressForm = () => {
 
           <button
             onClick={handleContinuar}
-            disabled={!selectedDept || !selectedMunicipio || !direccion.trim() || !nombre.trim()}
+            disabled={!selectedDept || !selectedMunicipio || !direccion.trim() || !nombre.trim() || guardandoDireccion}
             className={`btn-primary ${
-              !selectedDept || !selectedMunicipio || !direccion.trim() || !nombre.trim() ? "disabled" : ""
+              !selectedDept || !selectedMunicipio || !direccion.trim() || !nombre.trim() || guardandoDireccion ? "disabled" : ""
             }`}
           >
-            Continuar al Pago
+            {guardandoDireccion ? "Guardando..." : "Continuar al Pago"}
           </button>
         </div>
       </div>

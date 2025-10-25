@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2'; // ✅ NUEVO IMPORT
 import ReviewForm from "../../components/Review/ReviewForm";
 import Review from '../../components/Review/ReviewView';
 import { useAuthContext } from '../../context/useAuth';
 import './ProductsReview.css';
-
 
 const ProductsReview = () => {
   const { id } = useParams();
@@ -132,6 +132,7 @@ const ProductsReview = () => {
     setSelectedFlavor(e.target.value);
   };
 
+  // ✅ MODIFICADO: con SweetAlert2 agregado
   const handleAddToCart = () => {
     if (!product) return;
 
@@ -163,6 +164,19 @@ const ProductsReview = () => {
     localStorage.setItem("carrito", JSON.stringify(carrito));
 
     const flavorText = selectedFlavor ? ` - ${selectedFlavor}` : '';
+
+    // ✅ ALERTA VISUAL SWEETALERT2
+    Swal.fire({
+      title: '¡Producto agregado!',
+      text: `${quantity} x ${product.name}${flavorText} se agregó al carrito`,
+      icon: 'success',
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#3085d6',
+      background: '#f9f9f9',
+      color: '#333',
+    });
+
+    // Mantiene tu toast original
     toast.success(`Agregado al carrito: ${quantity} x ${product.name}${flavorText}`);
   };
 
@@ -181,18 +195,14 @@ const ProductsReview = () => {
         setTimeout(() => {
           toast.dismiss('checking-session');
           if (isAuthenticated && user) {
-            // Verificar si es distribuidor
             if (user.role === "distributor") {
               toast.error("Los distribuidores no pueden agregar reseñas");
               return;
             }
-            
-            // Verificar si ya dejó una reseña
             if (userHasReviewed) {
               toast.error("Ya has dejado una reseña para este producto");
               return;
             }
-            
             setShowReviewForm(true);
           } else {
             toast.error("Debes iniciar sesión para agregar una reseña");
@@ -207,13 +217,11 @@ const ProductsReview = () => {
       return;
     }
 
-    // Verificar si es distribuidor
     if (user.role === "distributor") {
       toast.error("Los distribuidores no pueden agregar reseñas");
       return;
     }
 
-    // Verificar si ya dejó una reseña
     if (userHasReviewed) {
       toast.error("Ya has dejado una reseña para este producto");
       return;
@@ -234,7 +242,6 @@ const ProductsReview = () => {
       return;
     }
 
-    // Navegar a la página de personalización con los datos del producto
     navigate('/personalizar', { 
       state: { 
         nombre: product.name, 
@@ -391,11 +398,10 @@ const ProductsReview = () => {
                   </button>
                 </div>
 
-                {/* Botones de Personalizar y Agregar Reseña - En la misma línea */}
                 {!isDistribuidor && (
                   <div className="secondary-actions">
                     <button className="customize-btn" onClick={handleCustomize}>
-                       Personalizar Producto
+                      Personalizar Producto
                     </button>
                     <button className="add-review-btn-inline" onClick={handleAddReview}>
                       + Agregar Reseña
@@ -410,7 +416,6 @@ const ProductsReview = () => {
             <div className="reviews-column">
               <div className="reviews-header">
                 <h2>Reseñas del Producto</h2>
-                {/* Botón removido de aquí - ahora está arriba */}
               </div>
 
               <div className="reviews-stats">
