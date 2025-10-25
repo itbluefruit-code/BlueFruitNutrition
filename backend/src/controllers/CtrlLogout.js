@@ -4,8 +4,8 @@ logoutController.logout = (req, res) => {
   try {
  res.clearCookie("authToken", {
   httpOnly: true,
-  sameSite: "Lax",
-  secure: false,
+  secure: true,
+    sameSite: "None",
   path: "/",
 });
     return res.json({ ok: true, message: "Sesión cerrada correctamente" });
