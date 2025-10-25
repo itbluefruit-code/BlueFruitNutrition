@@ -238,7 +238,7 @@ const checkSession = async () => {
           </div>
         </div>
 
-        {userData.role !== "admin" && (
+        {userData.role !== "customer" && (
           <div className="perfil-card">
             <h2>
               <FiHome /> Mis Direcciones
@@ -263,7 +263,7 @@ const checkSession = async () => {
       </div>
 
       <div className="perfil-right">
-        {userData.role !== "admin" && (
+        {userData.role !== "customer" && (
           <div className="orders-card">
             <h2>
               <FiPackage /> Historial de Órdenes
