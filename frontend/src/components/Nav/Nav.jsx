@@ -19,7 +19,7 @@ export default function Sidebar() {
       if (res.ok) {
         await logout(); // limpia estado en React
         toast.success('Sesión cerrada correctamente');
-        window.location.href = "http://localhost:5173"; 
+        window.location.href = "https://blue-fruit-nutrition-alpha.vercel.app"; 
       } else {
         const data = await res.json();
         toast.error(data.message || 'Error al cerrar sesión');
