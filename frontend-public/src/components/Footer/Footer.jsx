@@ -14,19 +14,9 @@ const Footer = () => {
           {/* Imagen del logo */}
           <img src="/Logo_Blue_Fruit.png" alt="Logo Blue Fruit" className="blue-fruit-footer-logo" />
           
-          {/* Título de la sección de suscripción */}
-          <p className="blue-fruit-subscribe-title">Suscribite</p>
+   
           
-          {/* Texto promocional para invitar a la suscripción */}
-          <p className="blue-fruit-subscribe-text">
-            Obten un 10% de descuento<br />en tu primer pedido
-          </p>
           
-          {/* Campo de entrada de correo y botón para enviar */}
-          <div className="blue-fruit-subscribe-input">
-            <input type="email" placeholder="Introduce tu correo" />
-            <button>{">"}</button> {/* Botón con símbolo de "enviar" */}
-          </div>
         </div>
 
         {/* Sección con información de contacto */}
