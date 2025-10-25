@@ -23,7 +23,7 @@ const Perfil = () => {
   const navigate = useNavigate();
 
   // Backend corre en puerto 4000
-  const API_URL = "http://localhost:4000/api";
+  const API_URL = "https://bluefruitnutrition-production.up.railway.app/api";
 
   // Verifica sesión activa
 const checkSession = async () => {
