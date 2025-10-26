@@ -54,40 +54,49 @@ const Perfil = () => {
 
   // Subida de imagen
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const file = e.target.files[0];
+  if (!file) return;
 
-    // Validar tamaño (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      Swal.fire({ icon: "error", title: "Imagen muy grande", text: "El tamaño máximo es 5MB" });
-      return;
+  if (file.size > 5 * 1024 * 1024) {
+    Swal.fire({ icon: "error", title: "Imagen muy grande", text: "El tamaño máximo es 5MB" });
+    return;
+  }
+
+  const form = new FormData();
+  form.append("file", file);
+  form.append("upload_preset", "bluefruit"); // 👈 preset unsigned real
+  form.append("resource_type", "image");
+
+  try {
+    setUploadingImage(true);
+    const res = await fetch("https://api.cloudinary.com/v1_1/dpjgktym3/image/upload", {
+      method: "POST",
+      body: form,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Error Cloudinary:", data);
+      throw new Error(data.error?.message || "Error al subir imagen");
     }
 
-    const form = new FormData();
-    form.append("file", file);
-    form.append("upload_preset", "YOUR_CLOUDINARY_PRESET");
+    setFormData((prev) => ({ ...prev, avatar: data.secure_url }));
 
-    try {
-      setUploadingImage(true);
-      const res = await fetch(`https://api.cloudinary.com/v1_1/YOUR_CLOUDINARY_NAME/image/upload`, {
-        method: "POST",
-        body: form,
-      });
-      const data = await res.json();
-      setFormData(prev => ({ ...prev, avatar: data.secure_url }));
-      Swal.fire({ 
-        icon: "success", 
-        title: "¡Imagen actualizada!", 
-        timer: 1500, 
-        showConfirmButton: false 
-      });
-    } catch (error) {
-      console.error(error);
-      Swal.fire({ icon: "error", title: "Error al subir imagen" });
-    } finally {
-      setUploadingImage(false);
-    }
-  };
+    Swal.fire({
+      icon: "success",
+      title: "¡Imagen actualizada!",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    console.error(error);
+    Swal.fire({ icon: "error", title: "Error al subir imagen" });
+  } finally {
+    setUploadingImage(false);
+  }
+};
+
 
   // Guardar perfil
   const handleSaveProfile = async () => {
