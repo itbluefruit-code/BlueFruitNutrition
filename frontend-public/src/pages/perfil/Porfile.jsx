@@ -1,22 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import {
-  FiEdit2,
-  FiSave,
-  FiLogOut,
-  FiUser,
-  FiMail,
-  FiPhone,
-  FiMapPin,
-  FiCamera,
-} from "react-icons/fi";
-import "./Portfile.css";
+import { FiEdit2, FiSave, FiLogOut, FiUser, FiMail, FiPhone, FiMapPin, FiCamera, FiCheck, FiX } from "react-icons/fi";
+import "./profile.css";
 
 const Perfil = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,7 +29,6 @@ const Perfil = () => {
       });
       if (!res.ok) throw new Error("Sesión inválida");
       const data = await res.json();
-
       setUserData(data);
       setFormData({
         name: data.name || "",
@@ -54,36 +45,47 @@ const Perfil = () => {
     }
   };
 
-  // Cambios de inputs
+  useEffect(() => { checkSession(); }, []);
+
+  // Manejo de inputs
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Subir imagen
+  // Subida de imagen
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Validar tamaño (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      Swal.fire({ icon: "error", title: "Imagen muy grande", text: "El tamaño máximo es 5MB" });
+      return;
+    }
+
     const form = new FormData();
     form.append("file", file);
-    form.append("upload_preset", "YOUR_CLOUDINARY_PRESET"); // Cambiar por tu preset
+    form.append("upload_preset", "YOUR_CLOUDINARY_PRESET");
 
     try {
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/YOUR_CLOUDINARY_NAME/image/upload",
-        { method: "POST", body: form }
-      );
+      setUploadingImage(true);
+      const res = await fetch(`https://api.cloudinary.com/v1_1/YOUR_CLOUDINARY_NAME/image/upload`, {
+        method: "POST",
+        body: form,
+      });
       const data = await res.json();
-      setFormData((prev) => ({ ...prev, avatar: data.secure_url }));
-      Swal.fire({
-        icon: "success",
-        title: "Imagen subida",
-        timer: 1500,
-        showConfirmButton: false,
+      setFormData(prev => ({ ...prev, avatar: data.secure_url }));
+      Swal.fire({ 
+        icon: "success", 
+        title: "¡Imagen actualizada!", 
+        timer: 1500, 
+        showConfirmButton: false 
       });
     } catch (error) {
       console.error(error);
       Swal.fire({ icon: "error", title: "Error al subir imagen" });
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -118,19 +120,18 @@ const Perfil = () => {
       const updated = await res.json();
       setUserData(updated);
       setEditing(false);
-
-      Swal.fire({
-        icon: "success",
-        title: "¡Perfil actualizado!",
-        timer: 2000,
-        showConfirmButton: false,
+      Swal.fire({ 
+        icon: "success", 
+        title: "¡Perfil actualizado!", 
+        text: "Tus cambios se guardaron correctamente",
+        timer: 2000, 
+        showConfirmButton: false 
       });
     } catch (error) {
       Swal.fire({ icon: "error", title: "Error", text: error.message });
     }
   };
 
-  // Cancelar edición
   const handleCancel = () => {
     setFormData({
       name: userData.name || "",
@@ -142,7 +143,6 @@ const Perfil = () => {
     setEditing(false);
   };
 
-  // Logout
   const handleLogout = async () => {
     const confirm = await Swal.fire({
       title: "¿Cerrar sesión?",
@@ -158,6 +158,12 @@ const Perfil = () => {
 
     try {
       await fetch(`${API_URL}/logout`, { method: "POST", credentials: "include" });
+      Swal.fire({ 
+        icon: "success", 
+        title: "Sesión cerrada", 
+        timer: 1500, 
+        showConfirmButton: false 
+      });
       setUserData(null);
       navigate("/");
     } catch (error) {
@@ -166,137 +172,142 @@ const Perfil = () => {
     }
   };
 
-  useEffect(() => {
-    checkSession();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="perfil-loading">
-        <div className="spinner"></div>
-        <p>Cargando perfil...</p>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="perfil-loading">
+      <div className="spinner"></div>
+      <p>Cargando perfil...</p>
+    </div>
+  );
 
   if (!userData) return null;
 
   return (
-    <div className="perfil-container">
-      <div className="perfil-wrapper">
-        {/* Header */}
+    <div className="perfil-page">
+      <div className="perfil-container">
+        {/* Header con avatar */}
         <div className="perfil-header">
-          <div className="perfil-header-content">
-            <div className="perfil-avatar-section">
-              <div className="perfil-avatar">
-                {formData.avatar ? (
-                  <img
-                    src={formData.avatar}
-                    alt="Avatar"
-                    style={{ width: "100%", height: "100%", borderRadius: "50%" }}
-                  />
+          <div className="avatar-section">
+            <div className="avatar-wrapper">
+              <div className="avatar">
+                {uploadingImage ? (
+                  <div className="avatar-loading">
+                    <div className="spinner-small"></div>
+                  </div>
+                ) : formData.avatar ? (
+                  <img src={formData.avatar} alt="Avatar" />
                 ) : (
-                  <FiUser size={48} color="#fff" />
+                  <FiUser size={60} color="#1b1b3c"/>
                 )}
               </div>
               {editing && (
                 <label className="avatar-upload-btn">
-                  <FiCamera />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    onChange={handleImageUpload}
-                  />
+                  <FiCamera size={18} />
+                  <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
                 </label>
               )}
             </div>
-            <h1>{formData.name || "Usuario"}</h1>
-            <p className="perfil-email">{formData.email}</p>
-            <span className="perfil-badge">
-              {userData.role === "admin" ? "Administrador" : "Cliente"}
-            </span>
+            <div className="header-info">
+              <h1>{formData.name || "Usuario"}</h1>
+              <p className="user-email">{formData.email}</p>
+              <span className="role-badge">
+                {userData.role === "admin" ? "👑 Administrador" : "👤 Cliente"}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Formulario */}
-        <div className="perfil-section-header">
-  <h2>Información Personal</h2>
-  {!editing ? (
-    <button className="btn-edit-header" onClick={() => setEditing(true)}>
-      <FiEdit2 size={16}/> Editar perfil
-    </button>
-  ) : (
-    <div className="edit-actions-header">
-      <button className="btn-cancel" onClick={handleCancel}>Cancelar</button>
-      <button className="btn-save-header" onClick={handleSaveProfile}>
-        <FiSave size={16}/> Guardar
-      </button>
-    </div>
-  )}
-</div>
-        <div className="perfil-section-content">
-          <div className="perfil-form">
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="name">
-                  <FiUser className="input-icon" /> Nombre completo
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  disabled={!editing}
-                />
+        {/* Card de información */}
+        <div className="perfil-card">
+          {/* Header del card */}
+          <div className="card-header">
+            <h2>Información Personal</h2>
+            {!editing ? (
+              <button className="btn-edit" onClick={() => setEditing(true)}>
+                <FiEdit2 /> Editar perfil
+              </button>
+            ) : (
+              <div className="edit-actions">
+                <button className="btn-cancel" onClick={handleCancel}>
+                  <FiX /> Cancelar
+                </button>
+                <button className="btn-save" onClick={handleSaveProfile}>
+                  <FiCheck /> Guardar
+                </button>
               </div>
-              <div className="form-group">
-                <label htmlFor="email">
-                  <FiMail className="input-icon" /> Correo electrónico
-                </label>
-                <input id="email" name="email" type="email" value={formData.email} disabled />
-                <small className="input-hint">No se puede modificar el correo</small>
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="phone">
-                  <FiPhone className="input-icon" /> Teléfono
-                </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  disabled={!editing}
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="address">
-                  <FiMapPin className="input-icon" /> Dirección
-                </label>
-                <input
-                  id="address"
-                  name="address"
-                  type="text"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  disabled={!editing}
-                />
-              </div>
-            </div>
+            )}
           </div>
 
-          <div className="perfil-section-divider"></div>
+          {/* Formulario */}
+          <div className="perfil-form">
+            <div className="form-group">
+              <label>
+                <FiUser className="label-icon" />
+                Nombre completo
+              </label>
+              <input 
+                type="text" 
+                name="name" 
+                value={formData.name} 
+                disabled={!editing} 
+                onChange={handleInputChange}
+                placeholder="Ingresa tu nombre"
+              />
+            </div>
 
-          {/* Zona de logout */}
-          <div className="perfil-danger-zone">
-            <h3>Zona de seguridad</h3>
-            <p>Administra tu sesión y acceso a la plataforma</p>
-            <button className="btn-logout-danger" onClick={handleLogout}>
+            <div className="form-group">
+              <label>
+                <FiMail className="label-icon" />
+                Correo electrónico
+              </label>
+              <input 
+                type="email" 
+                value={formData.email} 
+                disabled
+                className="input-disabled"
+              />
+              <small className="input-hint">El correo no puede ser modificado</small>
+            </div>
+
+            <div className="form-group">
+              <label>
+                <FiPhone className="label-icon" />
+                Teléfono
+              </label>
+              <input 
+                type="tel" 
+                name="phone" 
+                value={formData.phone} 
+                disabled={!editing} 
+                onChange={handleInputChange}
+                placeholder="Ej: 7890-1234"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>
+                <FiMapPin className="label-icon" />
+                Dirección
+              </label>
+              <input 
+                type="text" 
+                name="address" 
+                value={formData.address} 
+                disabled={!editing} 
+                onChange={handleInputChange}
+                placeholder="Calle, colonia, ciudad"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Zona de seguridad */}
+        <div className="danger-zone">
+          <div className="danger-content">
+            <div className="danger-info">
+              <h3>Cerrar sesión</h3>
+              <p>Salir de tu cuenta en este dispositivo</p>
+            </div>
+            <button className="btn-logout" onClick={handleLogout}>
               <FiLogOut /> Cerrar sesión
             </button>
           </div>
