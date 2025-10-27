@@ -7,6 +7,8 @@ import "./profile.css";
 const Perfil = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [avatar, setAvatar] = useState("");
 
   const navigate = useNavigate();
   const API_URL = "https://bluefruitnutrition-production.up.railway.app/api";
