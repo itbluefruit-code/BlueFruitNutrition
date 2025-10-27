@@ -1,21 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { FiEdit2, FiSave, FiLogOut, FiUser, FiMail, FiPhone, FiMapPin, FiCamera, FiCheck, FiX } from "react-icons/fi";
+import { FiLogOut, FiUser, FiMail, FiPhone, FiMapPin, FiCamera } from "react-icons/fi";
 import "./profile.css";
 
 const Perfil = () => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    avatar: "",
-  });
 
   const navigate = useNavigate();
   const API_URL = "https://bluefruitnutrition-production.up.railway.app/api";
@@ -29,14 +20,9 @@ const Perfil = () => {
       });
       if (!res.ok) throw new Error("Sesión inválida");
       const data = await res.json();
+      console.log("Datos de sesión recibidos:", data);
       setUserData(data);
-      setFormData({
-        name: data.name || "",
-        email: data.email || "",
-        phone: data.phone || "",
-        address: data.address || "",
-        avatar: data.avatar || "",
-      });
+      setAvatar(data.avatar || "");
     } catch (error) {
       console.error(error);
       navigate("/login");
@@ -47,109 +33,116 @@ const Perfil = () => {
 
   useEffect(() => { checkSession(); }, []);
 
-  // Manejo de inputs
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Sincronizar avatar cuando userData cambia
+  useEffect(() => {
+    if (userData?.avatar) {
+      setAvatar(userData.avatar);
+    }
+  }, [userData]);
 
   // Subida de imagen
   const handleImageUpload = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+    const file = e.target.files[0];
+    if (!file) return;
 
-  if (file.size > 5 * 1024 * 1024) {
-    Swal.fire({ icon: "error", title: "Imagen muy grande", text: "El tamaño máximo es 5MB" });
-    return;
-  }
-
-  const form = new FormData();
-  form.append("file", file);
-  form.append("upload_preset", "bluefruit"); // 👈 preset unsigned real
-  form.append("resource_type", "image");
-
-  try {
-    setUploadingImage(true);
-    const res = await fetch("https://api.cloudinary.com/v1_1/dpjgktym3/image/upload", {
-      method: "POST",
-      body: form,
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error("Error Cloudinary:", data);
-      throw new Error(data.error?.message || "Error al subir imagen");
+    if (file.size > 5 * 1024 * 1024) {
+      Swal.fire({ icon: "error", title: "Imagen muy grande", text: "El tamaño máximo es 5MB" });
+      return;
     }
 
-    setFormData((prev) => ({ ...prev, avatar: data.secure_url }));
-
-    Swal.fire({
-      icon: "success",
-      title: "¡Imagen actualizada!",
-      timer: 1500,
-      showConfirmButton: false,
-    });
-  } catch (error) {
-    console.error(error);
-    Swal.fire({ icon: "error", title: "Error al subir imagen" });
-  } finally {
-    setUploadingImage(false);
-  }
-};
-
-
-  // Guardar perfil
-  const handleSaveProfile = async () => {
-    const confirm = await Swal.fire({
-      title: "¿Guardar cambios?",
-      text: "Se actualizará tu información de perfil",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Sí, guardar",
-      cancelButtonText: "Cancelar",
-      confirmButtonColor: "#1b1b3c",
-      cancelButtonColor: "#6b7280",
-    });
-
-    if (!confirm.isConfirmed) return;
+    const form = new FormData();
+    form.append("file", file);
+    form.append("upload_preset", "bluefruit");
+    form.append("resource_type", "image");
 
     try {
-      const res = await fetch(`${API_URL}/users/${userData.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData),
+      setUploadingImage(true);
+      
+      // Subir a Cloudinary
+      const res = await fetch("https://api.cloudinary.com/v1_1/dpjgktym3/image/upload", {
+        method: "POST",
+        body: form,
       });
+
+      const data = await res.json();
 
       if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.message || "Error al actualizar perfil");
+        console.error("Error Cloudinary:", data);
+        throw new Error(data.error?.message || "Error al subir imagen");
       }
 
-      const updated = await res.json();
-      setUserData(updated);
-      setEditing(false);
-      Swal.fire({ 
-        icon: "success", 
-        title: "¡Perfil actualizado!", 
-        text: "Tus cambios se guardaron correctamente",
-        timer: 2000, 
-        showConfirmButton: false 
+      const newAvatar = data.secure_url;
+      console.log("Avatar subido a Cloudinary:", newAvatar);
+      
+      // Actualizar estado local temporalmente
+      setAvatar(newAvatar);
+
+      // Guardar en la base de datos
+      await saveAvatar(newAvatar);
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Foto de perfil actualizada!",
+        text: "Tu foto se ha guardado correctamente",
+        timer: 2000,
+        showConfirmButton: false,
       });
     } catch (error) {
-      Swal.fire({ icon: "error", title: "Error", text: error.message });
+      console.error("Error completo:", error);
+      Swal.fire({ 
+        icon: "error", 
+        title: "Error al subir imagen",
+        text: error.message || "Hubo un problema al guardar tu foto"
+      });
+      // Revertir al avatar anterior si falla
+      setAvatar(userData.avatar || "");
+    } finally {
+      setUploadingImage(false);
     }
   };
 
-  const handleCancel = () => {
-    setFormData({
-      name: userData.name || "",
-      email: userData.email || "",
-      phone: userData.phone || "",
-      address: userData.address || "",
-      avatar: userData.avatar || "",
-    });
-    setEditing(false);
+  // Guardar avatar en la base de datos
+  const saveAvatar = async (avatarUrl) => {
+    try {
+      const isDistributor = userData.role === "distributor" || userData.companyName;
+      const endpoint = isDistributor
+        ? `${API_URL}/distributors/${userData._id}` 
+        : `${API_URL}/customers/${userData._id}`;
+
+      const updateData = { avatar: avatarUrl };
+
+      console.log("Guardando avatar:", { endpoint, avatarUrl });
+
+      const res = await fetch(endpoint, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(updateData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Error del servidor:", errorData);
+        console.error("Status:", res.status);
+        console.error("Endpoint usado:", endpoint);
+        console.error("ID del usuario:", userData._id);
+        throw new Error(errorData.message || "Error al guardar avatar");
+      }
+
+      const updatedUser = await res.json();
+      console.log("Usuario actualizado:", updatedUser);
+
+      // Actualizar userData y avatar con los datos actualizados del servidor
+      setUserData({
+        ...userData,
+        avatar: updatedUser.avatar || avatarUrl,
+      });
+      setAvatar(updatedUser.avatar || avatarUrl);
+
+    } catch (error) {
+      console.error("Error guardando avatar:", error);
+      throw error; // Re-lanzar el error para manejarlo en handleImageUpload
+    }
   };
 
   const handleLogout = async () => {
@@ -202,24 +195,27 @@ const Perfil = () => {
                   <div className="avatar-loading">
                     <div className="spinner-small"></div>
                   </div>
-                ) : formData.avatar ? (
-                  <img src={formData.avatar} alt="Avatar" />
+                ) : avatar ? (
+                  <img src={avatar} alt="Avatar" />
                 ) : (
                   <FiUser size={60} color="#1b1b3c"/>
                 )}
               </div>
-              {editing && (
-                <label className="avatar-upload-btn">
-                  <FiCamera size={18} />
-                  <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage} />
-                </label>
-              )}
+              <label className="avatar-upload-btn">
+                <FiCamera size={18} />
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleImageUpload} 
+                  disabled={uploadingImage} 
+                />
+              </label>
             </div>
             <div className="header-info">
-              <h1>{formData.name || "Usuario"}</h1>
-              <p className="user-email">{formData.email}</p>
+              <h1>{userData.name || userData.companyName || "Usuario"}</h1>
+              <p className="user-email">{userData.email}</p>
               <span className="role-badge">
-                {userData.role === "admin" ? "👑 Administrador" : "👤 Cliente"}
+                {userData.role === "admin" ? "👑 Administrador" : userData.companyName ? "🏢 Distribuidor" : "👤 Cliente"}
               </span>
             </div>
           </div>
@@ -227,85 +223,92 @@ const Perfil = () => {
 
         {/* Card de información */}
         <div className="perfil-card">
-          {/* Header del card */}
           <div className="card-header">
             <h2>Información Personal</h2>
-            {!editing ? (
-              <button className="btn-edit" onClick={() => setEditing(true)}>
-                <FiEdit2 /> Editar perfil
-              </button>
-            ) : (
-              <div className="edit-actions">
-                <button className="btn-cancel" onClick={handleCancel}>
-                  <FiX /> Cancelar
-                </button>
-                <button className="btn-save" onClick={handleSaveProfile}>
-                  <FiCheck /> Guardar
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Formulario */}
-          <div className="perfil-form">
-            <div className="form-group">
-              <label>
+          {/* Información de solo lectura */}
+          <div className="perfil-info">
+            <div className="info-item">
+              <div className="info-label">
                 <FiUser className="label-icon" />
-                Nombre completo
-              </label>
-              <input 
-                type="text" 
-                name="name" 
-                value={formData.name} 
-                disabled={!editing} 
-                onChange={handleInputChange}
-                placeholder="Ingresa tu nombre"
-              />
+                <span>{userData.companyName ? "Nombre de la empresa" : "Nombre completo"}</span>
+              </div>
+              <div className="info-value">
+                {userData.name || userData.companyName || "No especificado"}
+                {userData.lastName && ` ${userData.lastName}`}
+              </div>
             </div>
 
-            <div className="form-group">
-              <label>
+            <div className="info-item">
+              <div className="info-label">
                 <FiMail className="label-icon" />
-                Correo electrónico
-              </label>
-              <input 
-                type="email" 
-                value={formData.email} 
-                disabled
-                className="input-disabled"
-              />
-              <small className="input-hint">El correo no puede ser modificado</small>
+                <span>Correo electrónico</span>
+              </div>
+              <div className="info-value">{userData.email}</div>
             </div>
 
-            <div className="form-group">
-              <label>
+            <div className="info-item">
+              <div className="info-label">
                 <FiPhone className="label-icon" />
-                Teléfono
-              </label>
-              <input 
-                type="tel" 
-                name="phone" 
-                value={formData.phone} 
-                disabled={!editing} 
-                onChange={handleInputChange}
-                placeholder="Ej: 7890-1234"
-              />
+                <span>Teléfono</span>
+              </div>
+              <div className="info-value">{userData.phone || "No especificado"}</div>
             </div>
 
-            <div className="form-group">
-              <label>
+            <div className="info-item">
+              <div className="info-label">
                 <FiMapPin className="label-icon" />
-                Dirección
-              </label>
-              <input 
-                type="text" 
-                name="address" 
-                value={formData.address} 
-                disabled={!editing} 
-                onChange={handleInputChange}
-                placeholder="Calle, colonia, ciudad"
-              />
+                <span>Dirección</span>
+              </div>
+              <div className="info-value">{userData.address || "No especificado"}</div>
             </div>
+
+            {/* Información adicional para clientes */}
+            {!userData.companyName && (
+              <>
+                {userData.weight && (
+                  <div className="info-item">
+                    <div className="info-label">
+                      <span>⚖️</span>
+                      <span>Peso</span>
+                    </div>
+                    <div className="info-value">{userData.weight} kg</div>
+                  </div>
+                )}
+
+                {userData.height && (
+                  <div className="info-item">
+                    <div className="info-label">
+                      <span>📏</span>
+                      <span>Altura</span>
+                    </div>
+                    <div className="info-value">{userData.height} cm</div>
+                  </div>
+                )}
+
+                {userData.gender && (
+                  <div className="info-item">
+                    <div className="info-label">
+                      <span>👤</span>
+                      <span>Género</span>
+                    </div>
+                    <div className="info-value">{userData.gender}</div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Información adicional para distribuidores */}
+            {userData.companyName && userData.NIT && (
+              <div className="info-item">
+                <div className="info-label">
+                  <span>🏢</span>
+                  <span>NIT</span>
+                </div>
+                <div className="info-value">{userData.NIT}</div>
+              </div>
+            )}
           </div>
         </div>
 
